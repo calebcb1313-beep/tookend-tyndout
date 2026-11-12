@@ -73,12 +73,12 @@ function draw(){
  if(boss?.alive){drawVeg(boss.x,boss.y+68,'#d93c43',1.65,-1,true);bar(boss.x-58,boss.y-42,116,9,boss.hp/boss.max,'#ff6c62');text(regions[region].boss,boss.x,boss.y-53,15,'#ffe28a','center')}
  shots.forEach(s=>{x.fillStyle=s.enemy?'#e77c77':'#f7e46c';x.shadowBlur=14;x.shadowColor=x.fillStyle;x.beginPath();x.arc(s.x,s.y,s.enemy?7:6,0,Math.PI*2);x.fill();x.shadowBlur=0});
  particles.forEach(p=>{x.globalAlpha=Math.min(1,p.t/20);x.fillStyle=p.col;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fill();x.globalAlpha=1});
- if(player.inv%8<4||player.inv===0)drawVeg(player.x,player.y+player.h,player.crouch?'#f2d66a':'#f4d34f',1,player.face);
+ if(player&&(player.inv%8<4||player.inv===0))drawVeg(player.x,player.y+player.h,player.crouch?'#f2d66a':'#f4d34f',1,player.face);
  x.restore();
  // HUD
- rounded(18,16,240,64,12,'#0b1024cc');text('ROOTBOUND REBELLION',32,39,13,'#c9e7a2');rounded(32,50,205,12,6,'#342b42');rounded(32,50,205*Math.max(0,player.hp/player.max),12,6,'#e86b66');text('♥ '+Math.max(0,player.hp),245,61,12,'#fff','right');
+ const hp=player?Math.max(0,player.hp):0,hpMax=player?player.max:100;
+ rounded(18,16,240,64,12,'#0b1024cc');text('ROOTBOUND REBELLION',32,39,13,'#c9e7a2');rounded(32,50,205,12,6,'#342b42');rounded(32,50,205*Math.max(0,hp/hpMax),12,6,'#e86b66');text('♥ '+hp,245,61,12,'#fff','right');
  rounded(770,16,172,54,12,'#0b1024cc');text('SEEDS  '+seedCount,856,49,17,'#ffdf72','center');text(mode==='endless'?'ENDLESS GROVE':`REGION ${region+1}/6`,480,28,13,'#fff','center');
- if(!running&&!menu.classList.contains('hidden')){} 
 }
 function bar(a,b,w,h,v,col){rounded(a,b,w,h,4,'#241a2b');rounded(a,b,w*Math.max(0,v),h,4,col)}
 function drawVeg(px,base,col,scale,face,big=false){
@@ -95,6 +95,6 @@ function drawVeg(px,base,col,scale,face,big=false){
  x.strokeStyle=col;x.lineWidth=7;x.lineCap='round';x.beginPath();x.moveTo(-14,-34);x.lineTo(-23,-20);x.moveTo(14,-34);x.lineTo(23,-21);x.stroke();
  x.restore();
 }
-function loop(t){let dt=Math.min(40,t-last);last=t;update();draw();requestAnimationFrame(loop)}
+function loop(t){let dt=Math.min(40,t-last);last=t;try{update();draw()}catch(err){console.error('frame failed',err)}requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 })();

@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v0.3.0
-  APK_NAME: Tookend-Tyndout-0.3.0.apk
+  RELEASE_TAG: v0.3.1
+  APK_NAME: Tookend-Tyndout-0.3.1.apk
 
 jobs:
   build:
@@ -76,7 +76,12 @@ jobs:
           body: |
             TOOKEND TYNDOUT: The Rootbound Rebellion
 
-            Android build 0.3.0 (versionCode 2) — installable release APK.
+            Android build 0.3.1 (versionCode 3) — installable release APK.
+
+            Fixed: the render loop crashed on its first frame before a level existed,
+            which froze the game on a static background as soon as you picked a region.
+            Also ships the service worker the page was requesting, so offline play works
+            when hosted.
 
             Install: download `${{ env.APK_NAME }}` below and open it on your device.
             Android will ask you to allow installing from this source.
