@@ -18,39 +18,57 @@ jobs:
     steps:
       - name: Check out project
         uses: actions/checkout@v4
+
       - name: Set up Java
+        id: java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-      - name: Install Android platform and build tools
+
+      # The ubuntu-latest image ships the Android SDK; only add packages if the
+      # exact platform/build-tools this project needs are missing.
+      - name: Prepare Android SDK
+        id: sdk
         run: |
           set -o pipefail
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" 2>&1 | tee sdk-install.log
+          chmod +x gradlew
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "Have platforms: $(ls "$ANDROID_HOME/platforms" 2>/dev/null | tr '\n' ' ')"
+          echo "Have build-tools: $(ls "$ANDROID_HOME/build-tools" 2>/dev/null | tr '\n' ' ')"
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -d "$ANDROID_HOME/platforms/android-35" ] || [ ! -d "$ANDROID_HOME/build-tools/35.0.0" ]; then
+            yes | "$SDKM" --licenses > /dev/null 2>&1 || true
+            "$SDKM" --install "platforms;android-35" "build-tools;35.0.0" 2>&1 | tee sdk-install.log
+          fi
+
       - name: Build signed release APK
+        id: build
         run: |
           set -o pipefail
-          gradle --no-daemon --stacktrace assembleRelease --console=plain 2>&1 | tee build.log
+          ./gradlew --no-daemon --stacktrace assembleRelease --console=plain 2>&1 | tee build.log
+
       - name: Name the APK for release
+        id: name
         run: cp app/build/outputs/apk/release/app-release.apk "$APK_NAME"
+
       - name: Verify APK signature
+        id: apksigner
         run: |
           set -o pipefail
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK_NAME" 2>&1 | tee apksigner.log
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Tookend-Tyndout-release-apk
           path: ${{ env.APK_NAME }}
           if-no-files-found: error
+
       - name: Publish GitHub release with APK
+        id: release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
@@ -70,16 +88,28 @@ jobs:
           fail_on_unmatched_files: true
           make_latest: true
 
-      # Diagnostic only: if any step above failed, publish the captured output to a
+      # Diagnostic only: if a step above failed, publish the captured output to a
       # ci-log branch so the failure is readable without repository access.
       - name: Publish diagnostics on failure
         if: failure()
         env:
           TOKEN: ${{ github.token }}
+          STEP_JAVA: ${{ steps.java.outcome }}
+          STEP_SDK: ${{ steps.sdk.outcome }}
+          STEP_BUILD: ${{ steps.build.outcome }}
+          STEP_NAME: ${{ steps.name.outcome }}
+          STEP_APKSIGNER: ${{ steps.apksigner.outcome }}
+          STEP_RELEASE: ${{ steps.release.outcome }}
         run: |
           {
             echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo "Commit: ${{ github.sha }}"
+            echo "java=$STEP_JAVA sdk=$STEP_SDK build=$STEP_BUILD name=$STEP_NAME apksigner=$STEP_APKSIGNER release=$STEP_RELEASE"
+            if [ -n "$ANDROID_HOME" ]; then
+              echo "ANDROID_HOME=$ANDROID_HOME"
+              echo "platforms: $(ls "$ANDROID_HOME/platforms" 2>/dev/null | tr '\n' ' ')"
+              echo "build-tools: $(ls "$ANDROID_HOME/build-tools" 2>/dev/null | tr '\n' ' ')"
+            fi
             for f in sdk-install.log build.log apksigner.log; do
               if [ -f "$f" ]; then echo; echo "===== $f (tail) ====="; tail -n 120 "$f"; fi
             done
