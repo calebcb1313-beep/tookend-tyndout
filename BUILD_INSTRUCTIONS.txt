@@ -4,7 +4,7 @@ This project wraps the Rootbound side-scrolling game in an Android WebView.
 
 RELEASE APK (already published):
 Every push to main builds a signed release APK and publishes it as the
-"Tookend Tyndout v0.4.0" GitHub Release. Download the .apk from the Releases page
+"Tookend Tyndout v0.4.1" GitHub Release. Download the .apk from the Releases page
 and open it on your device to install. The APK is signed with the project key in
 keystore/tookend-release.jks, so later releases install over earlier ones.
 
