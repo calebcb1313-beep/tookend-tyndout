@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v0.3.2
-  APK_NAME: Tookend-Tyndout-0.3.2.apk
+  RELEASE_TAG: v0.3.3
+  APK_NAME: Tookend-Tyndout-0.3.3.apk
 
 jobs:
   build:
@@ -76,10 +76,15 @@ jobs:
           body: |
             TOOKEND TYNDOUT: The Rootbound Rebellion
 
-            Android build 0.3.2 (versionCode 4) — installable release APK.
+            Android build 0.3.3 (versionCode 5) — installable release APK.
 
             New: a real launcher icon (adaptive on Android 8+) instead of the blank
             default, and the same artwork in the web manifest for installs.
+
+            Fixed: on a phone the on-screen D-pad sat on top of the main menu, and in
+            a short landscape viewport the menu was taller than the screen, clipping
+            the title and the HOW TO PLAY button. The pad now appears only during play
+            and the menu fits a phone in landscape.
 
             Fixed: the render loop crashed on its first frame before a level existed,
             which froze the game on a static background as soon as you picked a region.

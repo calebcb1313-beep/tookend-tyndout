@@ -12,7 +12,7 @@ const regions=[
 let mode='campaign',region=0,running=false,paused=false,frame=0,camera=0,score=0,seedCount=0,levelWidth=2600,platforms=[],foes=[],shots=[],particles=[],keys={},player,boss=null,gateX=0,last=0;
 function rounded(a,b,w,h,r,col){x.fillStyle=col;x.beginPath();x.roundRect(a,b,w,h,r);x.fill()}
 function text(t,a,b,size=18,col='#fff',align='left'){x.fillStyle=col;x.font=`900 ${size}px system-ui`;x.textAlign=align;x.fillText(t,a,b)}
-function show(el){[menu,levels,pause,help].forEach(e=>e.classList.add('hidden'));el.classList.remove('hidden')}
+function show(el){[menu,levels,pause,help].forEach(e=>e.classList.add('hidden'));el.classList.remove('hidden');document.body.classList.remove('playing')}
 function say(s){toast.textContent=s;setTimeout(()=>{if(toast.textContent===s)toast.textContent=''},1800)}
 function newLevel(i,endless=false){
  region=i%regions.length;mode=endless?'endless':'campaign';frame=0;camera=0;score=0;seedCount=0;levelWidth=endless?3600:2600+i*180;
@@ -25,7 +25,7 @@ function newLevel(i,endless=false){
  if(!endless)boss={x:levelWidth-310,y:380,hp:180+region*30,max:180+region*30,cd:80,alive:true};
  running=true;paused=false;showCanvasOnly();say(regions[region].name);
 }
-function showCanvasOnly(){[menu,levels,pause,help].forEach(e=>e.classList.add('hidden'))}
+function showCanvasOnly(){[menu,levels,pause,help].forEach(e=>e.classList.add('hidden'));document.body.classList.add('playing')}
 function startCampaign(){show(levels);let g=$('#levelGrid');g.innerHTML='';regions.forEach((r,i)=>{let b=document.createElement('button');b.innerHTML=`${String(i+1).padStart(2,'0')}<small>${r.name}</small>`;b.onclick=()=>newLevel(i);g.append(b)})}
 $('#campaign').onclick=startCampaign;$('#endless').onclick=()=>newLevel(0,true);$('#how').onclick=()=>show(help);
 $('#levelBack').onclick=()=>show(menu);$('#helpBack').onclick=()=>show(menu);$('#resume').onclick=()=>{paused=false;showCanvasOnly()};$('#quit').onclick=()=>{running=false;show(menu)};
