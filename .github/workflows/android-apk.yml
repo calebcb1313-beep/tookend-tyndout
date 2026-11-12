@@ -1,0 +1,66 @@
+name: Build Tookend Tyndout APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: v0.3.0
+  APK_NAME: Tookend-Tyndout-0.3.0.apk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android platform and build tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build signed release APK
+        run: gradle --no-daemon assembleRelease
+      - name: Name the APK for release
+        run: cp app/build/outputs/apk/release/app-release.apk "$APK_NAME"
+      - name: Verify APK signature
+        run: |
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          "$BUILD_TOOLS/apksigner" verify --print-certs "$APK_NAME"
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tookend-Tyndout-release-apk
+          path: ${{ env.APK_NAME }}
+          if-no-files-found: error
+      - name: Publish GitHub release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Tookend Tyndout ${{ env.RELEASE_TAG }}
+          body: |
+            TOOKEND TYNDOUT: The Rootbound Rebellion
+
+            Android build 0.3.0 (versionCode 2) — installable release APK.
+
+            Install: download `${{ env.APK_NAME }}` below and open it on your device.
+            Android will ask you to allow installing from this source.
+
+            Includes the campaign (six regions plus guardian fights), endless mode,
+            keyboard and touchscreen controls, and offline play inside a full-screen
+            landscape WebView.
+          files: ${{ env.APK_NAME }}
+          fail_on_unmatched_files: true
+          make_latest: true

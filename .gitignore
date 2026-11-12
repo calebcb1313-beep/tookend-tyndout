@@ -1,0 +1,11 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+captures/
+
+# Built APK copies (CI publishes the release asset)
+Tookend-Tyndout-*.apk

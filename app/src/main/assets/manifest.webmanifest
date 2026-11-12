@@ -1,0 +1,9 @@
+{
+  "name": "TOOKEND TYNDOUT: Rootbound Rebellion",
+  "short_name": "Tookend",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#100b18",
+  "theme_color": "#100b18"
+}

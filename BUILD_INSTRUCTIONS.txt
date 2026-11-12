@@ -1,0 +1,29 @@
+TOOKEND TYNDOUT — ANDROID PROJECT + CLOUD APK BUILD
+
+This project wraps the Rootbound side-scrolling game in an Android WebView.
+
+RELEASE APK (already published):
+Every push to main builds a signed release APK and publishes it as the
+"Tookend Tyndout v0.3.0" GitHub Release. Download the .apk from the Releases page
+and open it on your device to install. The APK is signed with the project key in
+keystore/tookend-release.jks, so later releases install over earlier ones.
+
+LOCAL BUILD (Android Studio):
+1. Extract the ZIP and open the project folder in Android Studio.
+2. Let Android Studio install Android SDK Platform 35 and sync Gradle.
+3. Select Build > Build Bundle(s) / APK(s) > Build APK(s).
+4. Debug APK output: app/build/outputs/apk/debug/app-debug.apk
+   Release APK output: app/build/outputs/apk/release/app-release.apk
+
+CLOUD BUILD (no Android Studio on your computer):
+1. Create a new GitHub repository.
+2. Upload the CONTENTS of this project folder to that repository (not the ZIP file).
+3. Open the repository's Actions tab.
+4. Select "Build Tookend Tyndout APK" and press "Run workflow", or push to main.
+5. When it completes, open the workflow run and download the artifact named
+   "Tookend-Tyndout-release-apk", or use the APK already attached to the release.
+6. Transfer the .apk to your Pixel and install it. Android may ask you to allow
+   installation from that file manager/browser.
+
+The APK is signed for sideloading, not for the Play Store, and uses the same
+version name/tag declared in the workflow (RELEASE_TAG / APK_NAME).

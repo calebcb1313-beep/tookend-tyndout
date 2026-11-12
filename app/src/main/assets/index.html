@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#100b18"><link rel="manifest" href="manifest.webmanifest">
+<title>TOOKEND TYNDOUT — Rootbound</title><link rel="stylesheet" href="style.css">
+</head><body>
+<main id="shell">
+<canvas id="game" width="960" height="540" aria-label="Tookend Tyndout adventure game"></canvas>
+<section id="menu" class="overlay">
+ <div class="eyebrow">A PRODUCE KINGDOM ADVENTURE</div>
+ <h1>TOOKEND<br><em>TYNDOUT</em></h1>
+ <p class="subtitle">THE ROOTBOUND REBELLION</p>
+ <div class="menuButtons">
+  <button id="campaign">CAMPAIGN <small>Six cursed regions</small></button>
+  <button id="endless">ENDLESS <small>Survive the rot</small></button>
+  <button id="how">HOW TO PLAY</button>
+ </div>
+ <p class="micro">A tiny rebellion beneath a very big crown.</p>
+</section>
+<section id="levels" class="overlay hidden">
+ <h2>CHOOSE YOUR REGION</h2><p>Each region ends with a guardian.</p>
+ <div id="levelGrid" class="levelGrid"></div><button id="levelBack" class="secondary">BACK</button>
+</section>
+<section id="pause" class="overlay hidden"><h2>PAUSED</h2><button id="resume">RETURN TO THE ROOTS</button><button id="quit" class="secondary">MAIN MENU</button></section>
+<section id="help" class="overlay hidden"><h2>HOW TO SURVIVE</h2><p><b>Move:</b> A / D or ← / → &nbsp; <b>Jump:</b> W / ↑ / Space</p><p><b>Crouch:</b> S / ↓ &nbsp; <b>Fire:</b> F / Enter</p><p>On touchscreens, use the on-screen controls. Defeat enemies, collect golden seeds, and reach the guardian gate.</p><button id="helpBack">GOT IT</button></section>
+<div id="touch">
+ <div class="pad"><button data-key="left">◀</button><button data-key="right">▶</button><button data-key="down">▼</button></div>
+ <div class="actions"><button data-key="jump">JUMP</button><button data-key="fire">FIRE</button></div>
+</div>
+<div id="toast"></div>
+</main>
+<script src="adventure.js"></script><script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
+</body></html>
