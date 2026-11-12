@@ -10,3 +10,4 @@ captures/
 # Built APK copies (CI publishes the release asset)
 Tookend-Tyndout-*.apk
 shots/
+incoming/

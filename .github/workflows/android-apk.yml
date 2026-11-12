@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v0.3.3
-  APK_NAME: Tookend-Tyndout-0.3.3.apk
+  RELEASE_TAG: v0.4.0
+  APK_NAME: Tookend-Tyndout-0.4.0.apk
 
 jobs:
   build:
@@ -76,7 +76,13 @@ jobs:
           body: |
             TOOKEND TYNDOUT: The Rootbound Rebellion
 
-            Android build 0.3.3 (versionCode 5) — installable release APK.
+            Android build 0.4.0 (versionCode 6) — installable release APK.
+
+            Art update: the game now uses the illustrated sprite sheet. The lemon is the
+            hero, seven produce peons are the enemies, each region ends with its own
+            illustrated guardian, hit effects use the sheet's splat and explosion art,
+            the HUD heart comes from the UI set, and the launcher icon is the crowned
+            tomato king.
 
             New: a real launcher icon (adaptive on Android 8+) instead of the blank
             default, and the same artwork in the web manifest for installs.
