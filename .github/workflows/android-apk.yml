@@ -30,15 +30,20 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
       - name: Install Android platform and build tools
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          set -o pipefail
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" 2>&1 | tee sdk-install.log
       - name: Build signed release APK
-        run: gradle --no-daemon assembleRelease
+        run: |
+          set -o pipefail
+          gradle --no-daemon --stacktrace assembleRelease --console=plain 2>&1 | tee build.log
       - name: Name the APK for release
         run: cp app/build/outputs/apk/release/app-release.apk "$APK_NAME"
       - name: Verify APK signature
         run: |
-          BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
-          "$BUILD_TOOLS/apksigner" verify --print-certs "$APK_NAME"
+          set -o pipefail
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK_NAME" 2>&1 | tee apksigner.log
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -64,3 +69,23 @@ jobs:
           files: ${{ env.APK_NAME }}
           fail_on_unmatched_files: true
           make_latest: true
+
+      # Diagnostic only: if any step above failed, publish the captured output to a
+      # ci-log branch so the failure is readable without repository access.
+      - name: Publish diagnostics on failure
+        if: failure()
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Commit: ${{ github.sha }}"
+            for f in sdk-install.log build.log apksigner.log; do
+              if [ -f "$f" ]; then echo; echo "===== $f (tail) ====="; tail -n 120 "$f"; fi
+            done
+          } > ci-failure.txt 2>&1 || true
+          git config user.name "tookend-ci"; git config user.email "tookend-ci@users.noreply.github.com"
+          git checkout -B ci-log
+          git add -f ci-failure.txt
+          git commit -m "CI failure log for run ${{ github.run_id }}"
+          git push --force "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git" ci-log
