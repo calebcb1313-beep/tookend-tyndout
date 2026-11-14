@@ -1,29 +1,44 @@
-TOOKEND TYNDOUT — ANDROID PROJECT + CLOUD APK BUILD
+TOOKEND TYNDOUT: PRODUCE BRAWL — ANDROID PROJECT + APK BUILD
 
-This project wraps the Rootbound side-scrolling game in an Android WebView.
+This project wraps the canvas fighting game (app/src/main/assets) in a
+full-screen landscape Android WebView.
 
-RELEASE APK (already published):
-Every push to main builds a signed release APK and publishes it as the
-"Tookend Tyndout v0.4.1" GitHub Release. Download the .apk from the Releases page
-and open it on your device to install. The APK is signed with the project key in
-keystore/tookend-release.jks, so later releases install over earlier ones.
+APK
+---
+A signed release APK ships next to this file:
+  Tookend-Tyndout-Produce-Brawl-1.0.0.apk   (versionCode 8, versionName 1.0.0)
+It is signed with keystore/tookend-release.jks, so newer builds install over
+older ones. Sideloading only — not a Play Store bundle.
 
-LOCAL BUILD (Android Studio):
-1. Extract the ZIP and open the project folder in Android Studio.
-2. Let Android Studio install Android SDK Platform 35 and sync Gradle.
-3. Select Build > Build Bundle(s) / APK(s) > Build APK(s).
-4. Debug APK output: app/build/outputs/apk/debug/app-debug.apk
-   Release APK output: app/build/outputs/apk/release/app-release.apk
+LOCAL BUILD (Android Studio)
+----------------------------
+1. Open this folder as an Android project.
+2. Install Android SDK Platform 35 and Build-Tools 35.0.0 when prompted.
+3. Build > Build Bundle(s) / APK(s) > Build APK(s).
+4. Output: app/build/outputs/apk/release/app-release.apk
 
-CLOUD BUILD (no Android Studio on your computer):
-1. Create a new GitHub repository.
-2. Upload the CONTENTS of this project folder to that repository (not the ZIP file).
-3. Open the repository's Actions tab.
-4. Select "Build Tookend Tyndout APK" and press "Run workflow", or push to main.
-5. When it completes, open the workflow run and download the artifact named
-   "Tookend-Tyndout-release-apk", or use the APK already attached to the release.
-6. Transfer the .apk to your Pixel and install it. Android may ask you to allow
-   installation from that file manager/browser.
+COMMAND-LINE BUILD
+------------------
+  export JAVA_HOME=/path/to/jdk-17
+  export ANDROID_HOME=/path/to/android-sdk
+  ./gradlew assembleRelease
 
-The APK is signed for sideloading, not for the Play Store, and uses the same
-version name/tag declared in the workflow (RELEASE_TAG / APK_NAME).
+CLOUD BUILD (GitHub Actions)
+----------------------------
+Every push to main runs .github/workflows/android-apk.yml. It installs the SDK,
+builds the signed release APK, verifies the signature and publishes the APK on
+the v1.0.0 GitHub Release. Version names live in app/build.gradle; the release
+tag and APK filename live in the workflow's RELEASE_TAG / APK_NAME env values.
+
+WEB BUILD
+---------
+app/src/main/assets/index.html is a complete standalone build. Serve the folder
+over HTTP(S) for the installable PWA (service worker + manifest), or open the
+file directly — the game needs no network access.
+
+GAME CONTENT
+------------
+Nine fighters, three arenas, one-player versus four CPU difficulties, local
+two-player, a three-phase boss fight and training. Keyboard and multi-touch
+controls, synthesized audio, adjustable graphics quality. See
+app/src/main/assets/README.md for controls and systems.

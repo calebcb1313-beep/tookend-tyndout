@@ -1,7 +1,6 @@
 .gradle/
 build/
 app/build/
-local.properties
 *.iml
 .idea/
 .DS_Store
@@ -11,3 +10,6 @@ captures/
 Tookend-Tyndout-*.apk
 shots/
 incoming/
+local.properties
+
+artifacts/

@@ -1,34 +1,260 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#100b18"><link rel="manifest" href="manifest.webmanifest">
-<title>TOOKEND TYNDOUT — Rootbound</title><link rel="stylesheet" href="style.css">
-</head><body>
-<main id="shell">
-<canvas id="game" width="960" height="540" aria-label="Tookend Tyndout adventure game"></canvas>
-<section id="menu" class="overlay">
- <img class="menuHero" src="sprites/hero_lemon.png" alt="">
- <div class="eyebrow">A PRODUCE KINGDOM ADVENTURE</div>
- <h1>TOOKEND<br><em>TYNDOUT</em></h1>
- <p class="subtitle">THE ROOTBOUND REBELLION</p>
- <div class="menuButtons">
-  <button id="campaign">CAMPAIGN <small>Six cursed regions</small></button>
-  <button id="endless">ENDLESS <small>Survive the rot</small></button>
-  <button id="how">HOW TO PLAY</button>
- </div>
- <p class="micro">A tiny rebellion beneath a very big crown.</p>
-</section>
-<section id="levels" class="overlay hidden">
- <h2>CHOOSE YOUR REGION</h2><p>Each region ends with a guardian.</p>
- <div id="levelGrid" class="levelGrid"></div><button id="levelBack" class="secondary">BACK</button>
-</section>
-<section id="pause" class="overlay hidden"><h2>PAUSED</h2><button id="resume">RETURN TO THE ROOTS</button><button id="quit" class="secondary">MAIN MENU</button></section>
-<section id="help" class="overlay hidden"><h2>HOW TO SURVIVE</h2><p><b>Move:</b> A / D or ← / → &nbsp; <b>Jump:</b> W / ↑ / Space</p><p><b>Crouch:</b> S / ↓ &nbsp; <b>Fire:</b> F / Enter</p><p>On touchscreens, use the on-screen controls. Defeat enemies, collect golden seeds, and reach the guardian gate.</p><button id="helpBack">GOT IT</button></section>
-<div id="touch">
- <div class="pad"><button data-key="left" aria-label="Move left"></button><button data-key="right" aria-label="Move right"></button><button data-key="down" aria-label="Crouch"></button></div>
- <div class="actions"><button data-key="jump" aria-label="Jump"></button><button data-key="fire" aria-label="Fire"></button></div>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0d0818">
+<meta name="description" content="Tookend Tyndout: Produce Brawl — an arcade fighting game starring nine furious fruits and vegetables.">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<title>TOOKEND TYNDOUT — Produce Brawl</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="title">
+<div id="app">
+  <canvas id="game" width="960" height="540" aria-label="Tookend Tyndout fighting game"></canvas>
+
+  <!-- ================= TITLE ================= -->
+  <section id="screen-title" class="screen active">
+    <div class="titleGlow"></div>
+    <div class="titleWrap">
+      <div class="eyebrow">A PRODUCE KINGDOM BRAWLER</div>
+      <h1 class="logo">TOOKEND<em>TYNDOUT</em></h1>
+      <div class="logoSub">PRODUCE BRAWL</div>
+      <div class="tagline">TINY FRUITS. BIG GRUDGES. ONE PRODUCE AISLE.</div>
+      <div class="titleChars" id="titleChars"></div>
+      <div class="menu">
+        <button class="big primary" data-mode="cpu">1 PLAYER<small>Fight the CPU across four difficulties</small></button>
+        <button class="big" data-mode="2p">2 PLAYERS<small>Local versus on one device</small></button>
+        <button class="big bossBtn" data-mode="boss">BOSS FIGHT<small>Challenge King Tomato</small></button>
+        <button class="big" data-mode="training">TRAINING<small>Practice combos on a dummy</small></button>
+      </div>
+      <div class="menuRow">
+        <button class="small" id="toHow">HOW TO PLAY</button>
+        <button class="small" id="toSettings">SETTINGS</button>
+      </div>
+      <div class="micro">v1.0 · 9 fighters · 3 arenas · built for touch</div>
+    </div>
+  </section>
+
+  <!-- ================= DIFFICULTY ================= -->
+  <section id="screen-difficulty" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">SET THE HEAT</div>
+      <h2>CHOOSE DIFFICULTY</h2>
+      <div class="diffGrid" id="diffGrid"></div>
+      <div class="rowEnd"><button class="ghost" data-back="title">BACK</button></div>
+    </div>
+  </section>
+
+  <!-- ================= CHARACTER SELECT ================= -->
+  <section id="screen-select" class="screen">
+    <header class="selHead">
+      <div>
+        <div class="eyebrow" id="selectEyebrow">PLAYER 1</div>
+        <h2 id="selectTitle">CHOOSE YOUR FIGHTER</h2>
+      </div>
+      <div class="selTurn" id="pickStatus">P1 CHOOSING</div>
+    </header>
+    <div class="selectLayout">
+      <div class="gridWrap"><div class="charGrid" id="charGrid"></div></div>
+      <aside class="charInfo" id="charInfo">
+        <div class="previewWrap"><canvas id="previewCanvas" width="320" height="320"></canvas><div class="previewName" id="previewName">LEMON</div></div>
+        <div class="infoTop"><h3 id="infoName">LEMON</h3><span id="infoTitle">THE ZESTY STRIKER</span></div>
+        <div class="statBars" id="statBars"></div>
+        <p class="blurb" id="infoBlurb"></p>
+        <div class="moveList" id="moveList"></div>
+        <button class="skinBtn" id="skinBtn">SKIN: CLASSIC</button>
+      </aside>
+    </div>
+    <footer class="selFoot">
+      <button class="ghost" id="selBack">BACK</button>
+      <div class="hint">Tap a fighter · P1 selects with the left pad in menus</div>
+      <button class="small" id="randomPick">RANDOM</button>
+    </footer>
+  </section>
+
+  <!-- ================= STAGE SELECT ================= -->
+  <section id="screen-stage" class="screen">
+    <header class="selHead">
+      <div>
+        <div class="eyebrow">ONE AISLE, THREE BATTLEGROUNDS</div>
+        <h2>CHOOSE YOUR ARENA</h2>
+      </div>
+      <div class="vsLine" id="vsLine">LEMON vs TOMATO</div>
+    </header>
+    <div class="stageGrid" id="stageGrid"></div>
+    <footer class="selFoot">
+      <button class="ghost" id="stageBack">BACK</button>
+      <button class="big primary fightBtn" id="toBattle">TO BATTLE!</button>
+      <div class="hint" id="stageHint">Best of three · 60 second rounds</div>
+    </footer>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="screen-settings" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">TUNE THE EXPERIENCE</div>
+      <h2>SETTINGS</h2>
+      <div class="settingsGrid">
+        <label class="setRow"><span>MUSIC VOLUME</span><input type="range" id="setMusic" min="0" max="100" value="55"><b id="setMusicVal">55</b></label>
+        <label class="setRow"><span>SOUND EFFECTS</span><input type="range" id="setSfx" min="0" max="100" value="80"><b id="setSfxVal">80</b></label>
+        <label class="setRow"><span>MUTE ALL AUDIO</span><input type="checkbox" id="setMute"><b></b></label>
+        <label class="setRow"><span>SCREEN SHAKE</span><input type="checkbox" id="setShake" checked><b></b></label>
+        <label class="setRow"><span>TOUCH CONTROLS</span>
+          <select id="setTouch"><option value="auto">AUTO</option><option value="on">ALWAYS ON</option><option value="off">OFF</option></select><b></b>
+        </label>
+        <label class="setRow"><span>TOUCH OPACITY</span><input type="range" id="setOpacity" min="30" max="100" value="80"><b id="setOpacityVal">80</b></label>
+        <label class="setRow"><span>TOUCH SIZE</span><input type="range" id="setSize" min="70" max="130" value="100"><b id="setSizeVal">100</b></label>
+        <div class="setRow qualityRow"><span>GRAPHICS QUALITY</span><div class="segmented" id="setQuality">
+          <button data-q="low">LOW</button><button data-q="medium">MEDIUM</button><button data-q="high">HIGH</button>
+        </div><b></b></div>
+      </div>
+      <div class="rowEnd">
+        <button class="ghost" id="settingsBack">BACK</button>
+        <button class="small" id="resetSettings">RESET DEFAULTS</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW TO PLAY ================= -->
+  <section id="screen-how" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">READ THE AISLE</div>
+      <h2>HOW TO PLAY</h2>
+      <div class="howGrid">
+        <div class="howCard">
+          <h4>KEYBOARD — PLAYER 1</h4>
+          <div class="keys">
+            <div><kbd>A</kbd><kbd>D</kbd><span>Move</span></div>
+            <div><kbd>W</kbd><span>Jump</span></div>
+            <div><kbd>S</kbd><span>Crouch</span></div>
+            <div><kbd>J</kbd><span>Light attack</span></div>
+            <div><kbd>K</kbd><span>Heavy attack</span></div>
+            <div><kbd>L</kbd><span>Special</span></div>
+            <div><kbd>I</kbd><span>Super (full meter)</span></div>
+            <div><kbd>U</kbd><span>Guard</span></div>
+            <div><kbd>A A</kbd><span>Double-tap dash</span></div>
+            <div><kbd>ESC</kbd><span>Pause</span></div>
+          </div>
+        </div>
+        <div class="howCard">
+          <h4>KEYBOARD — PLAYER 2</h4>
+          <div class="keys">
+            <div><kbd>←</kbd><kbd>→</kbd><span>Move</span></div>
+            <div><kbd>↑</kbd><span>Jump</span></div>
+            <div><kbd>↓</kbd><span>Crouch</span></div>
+            <div><kbd>1</kbd><span>Light attack</span></div>
+            <div><kbd>2</kbd><span>Heavy attack</span></div>
+            <div><kbd>3</kbd><span>Special</span></div>
+            <div><kbd>0</kbd><span>Super</span></div>
+            <div><kbd>5</kbd><span>Guard</span></div>
+            <div><kbd>← ←</kbd><span>Double-tap dash</span></div>
+            <div><kbd>M</kbd><span>Mute audio</span></div>
+          </div>
+          <p class="note">Numpad keys, or <kbd>,</kbd><kbd>.</kbd><kbd>/</kbd><kbd>;</kbd><kbd>'</kbd> if you have no numpad.</p>
+        </div>
+        <div class="howCard">
+          <h4>TOUCH CONTROLS</h4>
+          <p>Use the left pad to move and the right cluster to attack. Every button supports simultaneous multi-touch, so you can jump and strike at once.</p>
+          <ul class="bullets">
+            <li><b>LIGHT</b> is fast and chains into combos.</li>
+            <li><b>HEAVY</b> is slow but launches and breaks guards.</li>
+            <li><b>SPECIAL</b> is a character projectile with a short cooldown.</li>
+            <li><b>SUPER</b> spends a full meter for a cinematic attack.</li>
+            <li><b>GUARD</b> blocks high and low; blocking still takes chip damage.</li>
+            <li>Double-tap left or right on the pad to dash.</li>
+          </ul>
+        </div>
+        <div class="howCard">
+          <h4>FIGHTING SYSTEM</h4>
+          <ul class="bullets">
+            <li>Land light attacks to start combos — light chains into light, heavy or special.</li>
+            <li>Damage scales down as combos get longer, so no infinite loops.</li>
+            <li>Your super meter fills when you deal or take damage.</li>
+            <li>Round timer runs out: the healthier fighter wins the round.</li>
+            <li>First to two rounds wins the match. Boss fights give King Tomato three phases.</li>
+            <li>Pause any time with the pause button or Escape.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rowEnd"><button class="ghost" id="howBack">BACK</button></div>
+    </div>
+  </section>
+
+  <!-- ================= PAUSE ================= -->
+  <section id="screen-pause" class="screen">
+    <div class="panel narrow">
+      <div class="eyebrow">TAKE A BREATHER</div>
+      <h2>PAUSED</h2>
+      <div class="menu">
+        <button class="big primary" id="btnResume">RESUME</button>
+        <button class="big" id="btnRestart">RESTART MATCH</button>
+        <button class="big" id="btnPauseHow">CONTROLS</button>
+        <button class="big" id="btnPauseSettings">SETTINGS</button>
+        <button class="big ghost" id="btnQuit">MAIN MENU</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="screen-results" class="screen">
+    <div class="panel wide resultsPanel">
+      <div class="eyebrow" id="resultEyebrow">MATCH COMPLETE</div>
+      <h2 id="resultTitle">PLAYER 1 WINS</h2>
+      <div class="resultBody">
+        <div class="resultPortrait"><canvas id="resultPortrait" width="240" height="240"></canvas></div>
+        <div class="resultInfo">
+          <div class="winnerName" id="winnerName">LEMON</div>
+          <div class="winnerTitle" id="winnerTitle">THE ZESTY STRIKER</div>
+          <p class="quote" id="winnerQuote"></p>
+          <div class="statTable" id="resultStats"></div>
+        </div>
+      </div>
+      <div class="menuRow">
+        <button class="big primary" id="btnRematch">REMATCH</button>
+        <button class="big" id="btnChange">CHARACTER SELECT</button>
+        <button class="big ghost" id="btnResultsMenu">MAIN MENU</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= IN-FIGHT BUTTONS ================= -->
+  <div id="sysBtns">
+    <button id="pauseBtn" class="sysBtn" aria-label="Pause">❚❚</button>
+    <button id="muteBtn" class="sysBtn" aria-label="Mute">♪</button>
+  </div>
+
+  <!-- ================= TOUCH CONTROLS ================= -->
+  <div id="touch" class="hidden">
+    <div class="pad" id="dpad">
+      <button class="tbtn up" data-act="up" aria-label="Jump">▲</button>
+      <button class="tbtn left" data-act="left" aria-label="Left">◀</button>
+      <button class="tbtn right" data-act="right" aria-label="Right">▶</button>
+      <button class="tbtn down" data-act="down" aria-label="Crouch">▼</button>
+    </div>
+    <div class="actions">
+      <button class="tbtn jump" data-act="up">JUMP</button>
+      <button class="tbtn guard" data-act="guard">GUARD</button>
+      <button class="tbtn special" data-act="special">SPECIAL</button>
+      <button class="tbtn super" data-act="super">SUPER</button>
+      <button class="tbtn light" data-act="light">LIGHT</button>
+      <button class="tbtn heavy" data-act="heavy">HEAVY</button>
+    </div>
+  </div>
+
+  <div id="rotateHint">Rotate your device for the full arena view</div>
 </div>
-<div id="toast"></div>
-</main>
-<script src="adventure.js"></script><script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
-</body></html>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/art.js"></script>
+<script src="js/arenas.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script>
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+</script>
+</body>
+</html>

@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v0.4.1
-  APK_NAME: Tookend-Tyndout-0.4.1.apk
+  RELEASE_TAG: v1.0.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.0.0.apk
 
 jobs:
   build:
@@ -74,38 +74,30 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           name: Tookend Tyndout ${{ env.RELEASE_TAG }}
           body: |
-            TOOKEND TYNDOUT: The Rootbound Rebellion
+            TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 0.4.1 (versionCode 7) — installable release APK.
+            Android build 1.0.0 (versionCode 8) — installable release APK.
 
-            New: the on-screen controls on a phone now use the sheet's own arrow and
-            action-button glyphs instead of text characters.
+            A complete produce-fighting remaster: nine fighters (Lemon, Tomato, Eggplant,
+            Spud, Banana, Chili, Onion, Blueberry and King Tomato), three layered arenas
+            (Produce Market, Rooftop, The Kitchen), one-player versus four CPU difficulties,
+            local two-player, a three-phase boss fight and a training room.
 
-            Art update: the game now uses the illustrated sprite sheet. The lemon is the
-            hero, seven produce peons are the enemies, each region ends with its own
-            illustrated guardian, hit effects use the sheet's splat and explosion art,
-            the HUD heart comes from the UI set, and the launcher icon is the crowned
-            tomato king.
+            Combat: light/heavy/special/super attacks, blocking with chip damage, dashes,
+            air attacks, combo scaling, hitstop, impact particles, KO slow motion and
+            character-specific super attacks.
 
-            New: a real launcher icon (adaptive on Android 8+) instead of the blank
-            default, and the same artwork in the web manifest for installs.
+            Interface: rebuilt menus, animated character select with stats and alternate
+            skins, in-match HUD with health, super meters, round pips, combos and a boss
+            bar, plus results with match statistics.
 
-            Fixed: on a phone the on-screen D-pad sat on top of the main menu, and in
-            a short landscape viewport the menu was taller than the screen, clipping
-            the title and the HOW TO PLAY button. The pad now appears only during play
-            and the menu fits a phone in landscape.
-
-            Fixed: the render loop crashed on its first frame before a level existed,
-            which froze the game on a static background as soon as you picked a region.
-            Also ships the service worker the page was requesting, so offline play works
-            when hosted.
+            Mobile: multi-touch virtual pad and six action buttons with adjustable size
+            and opacity, landscape-first layout, and a back button that pauses instead of
+            quitting the match. Graphics quality can be switched between low, medium and
+            high.
 
             Install: download `${{ env.APK_NAME }}` below and open it on your device.
             Android will ask you to allow installing from this source.
-
-            Includes the campaign (six regions plus guardian fights), endless mode,
-            keyboard and touchscreen controls, and offline play inside a full-screen
-            landscape WebView.
           files: ${{ env.APK_NAME }}
           fail_on_unmatched_files: true
           make_latest: true
