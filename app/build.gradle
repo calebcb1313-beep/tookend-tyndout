@@ -7,8 +7,8 @@ android {
         applicationId 'com.tookendtyndout.rootbound'
         minSdk 23
         targetSdk 35
-        versionCode 10
-        versionName '1.2.0'
+        versionCode 11
+        versionName '1.3.0'
     }
     signingConfigs {
         // Project signing key so every release installs as an update of the previous one.

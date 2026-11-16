@@ -9,8 +9,9 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v1.2.0
-  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.2.0.apk
+  RELEASE_TAG: v1.3.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.3.0.apk
+  AAB_NAME: Tookend-Tyndout-Produce-Brawl-1.3.0.aab
 
 jobs:
   build:
@@ -44,15 +45,18 @@ jobs:
             "$SDKM" --install "platforms;android-35" "build-tools;35.0.0" 2>&1 | tee sdk-install.log
           fi
 
-      - name: Build signed release APK
+      - name: Build signed release APK and AAB
         id: build
         run: |
           set -o pipefail
-          ./gradlew --no-daemon --stacktrace assembleRelease --console=plain 2>&1 | tee build.log
+          ./gradlew --no-daemon --stacktrace assembleRelease bundleRelease --console=plain 2>&1 | tee build.log
 
-      - name: Name the APK for release
+      - name: Name the APK and AAB for release
         id: name
-        run: cp app/build/outputs/apk/release/app-release.apk "$APK_NAME"
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "$APK_NAME"
+          cp app/build/outputs/bundle/release/app-release.aab "$AAB_NAME"
+          ls -la "$APK_NAME" "$AAB_NAME"
 
       - name: Verify APK signature
         id: apksigner
@@ -60,11 +64,20 @@ jobs:
           set -o pipefail
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$APK_NAME" 2>&1 | tee apksigner.log
 
-      - name: Upload APK artifact
+      - name: Verify AAB signature
+        id: jarsigner
+        run: |
+          set -o pipefail
+          jarsigner -verify "$AAB_NAME" 2>&1 | tee jarsigner.log
+          unzip -l "$AAB_NAME" | grep -q "base/manifest/AndroidManifest.xml"
+
+      - name: Upload APK and AAB artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Tookend-Tyndout-release-apk
-          path: ${{ env.APK_NAME }}
+          name: Tookend-Tyndout-release-builds
+          path: |
+            ${{ env.APK_NAME }}
+            ${{ env.AAB_NAME }}
           if-no-files-found: error
 
       - name: Publish GitHub release with APK
@@ -76,7 +89,20 @@ jobs:
           body: |
             TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 1.2.0 (versionCode 10) — installable release APK.
+            Android build 1.3.0 (versionCode 11) — installable release APK plus an
+            Android App Bundle for Play Console uploads.
+
+            NEW IN 1.3.0 — progression and platform polish. Twelve trophies driven by
+            real gameplay (first win, clean sweep, flawless match, ten-hit combo, super
+            hit, boss clear, story chapter, campaign, panic waves 10 and 20, full roster,
+            500 hits), with unlock toasts and a Trophies screen. Haptic feedback on hits,
+            blocks, supers and KOs with its own settings toggle and the Android VIBRATE
+            permission. CPU opponents now have per-fighter personalities: Chili rushes,
+            Eggplant turtles up, Onion zones from range, Banana jumps in, Spud brawls.
+            Saves are versioned, checksummed and mirrored to a backup slot, so a torn
+            write or corrupted entry recovers the previous good campaign state instead
+            of wiping progress. Touches cancelled by calls or app switches can no longer
+            leave a button stuck down.
 
             NEW IN 1.2.0 — THE GREAT PRODUCE WAR, an eight-chapter story campaign:
             24 authored encounters across the market, farm, pantry, rooftop, kitchen,
@@ -109,7 +135,9 @@ jobs:
 
             Install: download `${{ env.APK_NAME }}` below and open it on your device.
             Android will ask you to allow installing from this source.
-          files: ${{ env.APK_NAME }}
+          files: |
+            ${{ env.APK_NAME }}
+            ${{ env.AAB_NAME }}
           fail_on_unmatched_files: true
           make_latest: true
 
@@ -124,18 +152,19 @@ jobs:
           STEP_BUILD: ${{ steps.build.outcome }}
           STEP_NAME: ${{ steps.name.outcome }}
           STEP_APKSIGNER: ${{ steps.apksigner.outcome }}
+          STEP_JARSIGNER: ${{ steps.jarsigner.outcome }}
           STEP_RELEASE: ${{ steps.release.outcome }}
         run: |
           {
             echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo "Commit: ${{ github.sha }}"
-            echo "java=$STEP_JAVA sdk=$STEP_SDK build=$STEP_BUILD name=$STEP_NAME apksigner=$STEP_APKSIGNER release=$STEP_RELEASE"
+            echo "java=$STEP_JAVA sdk=$STEP_SDK build=$STEP_BUILD name=$STEP_NAME apksigner=$STEP_APKSIGNER jarsigner=$STEP_JARSIGNER release=$STEP_RELEASE"
             if [ -n "$ANDROID_HOME" ]; then
               echo "ANDROID_HOME=$ANDROID_HOME"
               echo "platforms: $(ls "$ANDROID_HOME/platforms" 2>/dev/null | tr '\n' ' ')"
               echo "build-tools: $(ls "$ANDROID_HOME/build-tools" 2>/dev/null | tr '\n' ' ')"
             fi
-            for f in sdk-install.log build.log apksigner.log; do
+            for f in sdk-install.log build.log apksigner.log jarsigner.log; do
               if [ -f "$f" ]; then echo; echo "===== $f (tail) ====="; tail -n 120 "$f"; fi
             done
           } > ci-failure.txt 2>&1 || true

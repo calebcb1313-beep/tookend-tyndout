@@ -420,3 +420,36 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
   .talkPortrait{width:140px}
   .talkBody{align-items:center}
 }
+
+/* ---------- trophies ---------- */
+.achList { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 4px; }
+.achCard {
+  display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px;
+  border-radius: 12px; background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08); opacity: 0.62;
+}
+.achCard.on {
+  opacity: 1; border-color: rgba(255,212,92,0.5);
+  background: linear-gradient(90deg, rgba(255,212,92,0.14), rgba(255,255,255,0.05));
+}
+.achIcon { font-size: 20px; line-height: 1; color: #ffd45c; }
+.achBody { display: flex; flex-direction: column; gap: 2px; }
+.achBody b { font-size: 11px; letter-spacing: 0.14em; }
+.achBody span { font-size: 12px; opacity: 0.8; }
+.achBody small { font-size: 10px; opacity: 0.65; letter-spacing: 0.08em; }
+.achBar { height: 4px; width: 180px; border-radius: 2px; overflow: hidden; margin-top: 4px; background: rgba(255,255,255,0.12); }
+.achBar i { display: block; height: 100%; background: #ffd45c; }
+#achToasts {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 8px; z-index: 80; pointer-events: none;
+}
+.achToast {
+  display: flex; flex-direction: column; gap: 2px; padding: 9px 16px; text-align: center;
+  border-radius: 12px; background: rgba(20,12,32,0.94);
+  border: 1px solid rgba(255,212,92,0.55); box-shadow: 0 10px 32px rgba(0,0,0,0.5);
+  opacity: 0; transform: translateY(-10px); transition: opacity 0.25s, transform 0.25s;
+}
+.achToast.show { opacity: 1; transform: none; }
+.achToast b { font-size: 9px; letter-spacing: 0.22em; color: #ffd45c; }
+.achToast span { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; }
+.achToast small { font-size: 10px; opacity: 0.72; }

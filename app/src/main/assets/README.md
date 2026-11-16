@@ -49,3 +49,37 @@ adjustable in Settings.
 - Service worker for offline play when hosted over HTTPS.
 
 The APK is built by the GitHub Actions workflow at `.github/workflows/android-apk.yml`.
+
+## Story campaign
+
+The Great Produce War runs eight chapters of three fights each (24 encounters) through
+Produce Market, The Overgrown Farm, The Underground Pantry, The Rooftop District, The
+Burning Kitchen, The Frozen Freezer, The Rotten Factory and The Rotten Core. Each world
+opens with dialogue, each battle is gated by the previous one, progress and the ending
+are saved, and the final fight is King Tomato. Worlds replay freely once cleared.
+
+## Produce Panic
+
+Endless waves with auto-fire, five enemy archetypes plus elites, a boss every fifth
+wave, XP gems, coins, sixteen stacked upgrades with coin rerolls and five difficulties.
+Best wave per difficulty is saved.
+
+## Trophies and haptics
+
+Twelve trophies unlock from real events and appear as toasts plus a Trophies screen.
+Vibration can be switched off in Settings (Android VIBRATE permission).
+
+## Saves
+
+Progress is versioned, checksummed and mirrored to a backup key. If the primary entry is
+corrupted, the previous good state is loaded instead of resetting. Campaign, panic
+records, trophies and settings all persist offline.
+
+## Known limitations
+
+- Rendering is a 2D canvas inside a WebView, not a 3D engine; there are no 3D models.
+- The story is told on dedicated screens around fights, not as explorable platforming levels.
+- No online multiplayer, no accounts, no cloud save.
+- The AAB is signed and release-ready but has not been submitted to Google Play.
+- Verified in a desktop browser and by inspecting the built APK/AAB; not yet installed on
+  physical Android hardware from this environment.

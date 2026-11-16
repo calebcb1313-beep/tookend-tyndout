@@ -148,15 +148,13 @@
   ];
 
   function loadProgress() {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (!raw) return { unlocked: 1, cleared: {} };
-      const p = JSON.parse(raw);
-      return { unlocked: p.unlocked || 1, cleared: p.cleared || {}, ending: !!p.ending };
-    } catch (e) { return { unlocked: 1, cleared: {} }; }
+    const p = TT.Save.read(SAVE_KEY, null);
+    if (!p || typeof p !== 'object') return { unlocked: 1, cleared: {}, ending: false };
+    const cleared = p.cleared && typeof p.cleared === 'object' ? p.cleared : {};
+    return { unlocked: p.unlocked || 1, cleared: cleared, ending: !!p.ending };
   }
   function saveProgress(p) {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(p)); } catch (e) {}
+    TT.Save.write(SAVE_KEY, p);
   }
 
   const Story = TT.Story = {
@@ -242,6 +240,11 @@
       const finalWin = this.world === WORLDS.length - 1 && finishedWorld;
       if (finalWin) this.progress.ending = true;
       saveProgress(this.progress);
+      if (TT.Ach) {
+        TT.Ach.unlock('chapter_clear');
+        if (finalWin || this.progress.ending) TT.Ach.unlock('campaign');
+      }
+      TT.Haptics.hit('ko');
       TT.sfx('win');
       if (finalWin) {
         this.playDialogue(w.outro, () => TT.UI.showStoryEnding());

@@ -93,10 +93,11 @@
 
   const BEST_KEY = 'tt_survival_best_v1';
   function loadBest() {
-    try { return JSON.parse(localStorage.getItem(BEST_KEY) || '{}') || {}; } catch (e) { return {}; }
+    const map = TT.Save.read(BEST_KEY, {});
+    return (map && typeof map === 'object') ? map : {};
   }
   function saveBest(map) {
-    try { localStorage.setItem(BEST_KEY, JSON.stringify(map)); } catch (e) {}
+    TT.Save.write(BEST_KEY, map);
   }
 
   /* ---------------------------------------------------------------- */
@@ -196,6 +197,7 @@
 
     nextWave() {
       this.wave++;
+      if (TT.Ach) TT.Ach.best('waveBest', this.wave);
       this.pendingPicks = 0;
       this.picks = [];
       this.beginWave(false);

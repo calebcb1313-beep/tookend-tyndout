@@ -1,44 +1,64 @@
-TOOKEND TYNDOUT: PRODUCE BRAWL — ANDROID PROJECT + APK BUILD
+TOOKEND TYNDOUT: PRODUCE BRAWL — ANDROID PROJECT, APK AND AAB BUILD
 
-This project wraps the canvas fighting game (app/src/main/assets) in a
-full-screen landscape Android WebView.
+The game is an offline Android application: a full-screen landscape activity that
+loads the bundled game from app/src/main/assets. There is no server, no network
+permission and no browser dependency — the APK contains and runs the game itself.
 
-APK
----
-A signed release APK ships next to this file:
-  Tookend-Tyndout-Produce-Brawl-1.2.0.apk   (versionCode 10, versionName 1.2.0)
-It is signed with keystore/tookend-release.jks, so newer builds install over
-older ones. Sideloading only — not a Play Store bundle.
+RELEASE ARTIFACTS
+-----------------
+Both are produced from the same versioned source and signed with
+keystore/tookend-release.jks, so newer builds install over older ones:
+
+  Tookend-Tyndout-Produce-Brawl-1.3.0.apk   (versionCode 11, versionName 1.3.0)
+  Tookend-Tyndout-Produce-Brawl-1.3.0.aab   (Play Console upload bundle)
+
+The APK is the installable build. The AAB is a release-ready upload artifact; it
+has not been submitted to Google Play, so the game is NOT published on the store.
 
 LOCAL BUILD (Android Studio)
 ----------------------------
 1. Open this folder as an Android project.
 2. Install Android SDK Platform 35 and Build-Tools 35.0.0 when prompted.
-3. Build > Build Bundle(s) / APK(s) > Build APK(s).
-4. Output: app/build/outputs/apk/release/app-release.apk
+3. Build > Build Bundle(s) / APK(s) > Build APK(s) for the APK, or
+   Build > Generate Signed Bundle / APK > Android App Bundle for the AAB.
 
 COMMAND-LINE BUILD
 ------------------
   export JAVA_HOME=/path/to/jdk-17
   export ANDROID_HOME=/path/to/android-sdk
-  ./gradlew assembleRelease
+  ./gradlew assembleRelease     # app/build/outputs/apk/release/app-release.apk
+  ./gradlew bundleRelease       # app/build/outputs/bundle/release/app-release.aab
+
+VERIFY
+------
+  $ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs \
+      Tookend-Tyndout-Produce-Brawl-1.3.0.apk
+  jarsigner -verify Tookend-Tyndout-Produce-Brawl-1.3.0.aab
 
 CLOUD BUILD (GitHub Actions)
 ----------------------------
 Every push to main runs .github/workflows/android-apk.yml. It installs the SDK,
-builds the signed release APK, verifies the signature and publishes the APK on
-the v1.2.0 GitHub Release. Version names live in app/build.gradle; the release
-tag and APK filename live in the workflow's RELEASE_TAG / APK_NAME env values.
+builds and signs the APK and AAB, verifies both signatures, and publishes both
+files on the v1.3.0 GitHub Release. Version names live in app/build.gradle; the
+release tag and filenames live in the workflow's RELEASE_TAG / APK_NAME / AAB_NAME
+environment values.
+
+INSTALL ON A DEVICE
+-------------------
+  adb install -r Tookend-Tyndout-Produce-Brawl-1.3.0.apk
+Or copy the APK to the device and open it, allowing installs from that source.
+The app is landscape, immersive fullscreen, keeps the screen awake during play,
+and the Android back button pauses a match instead of quitting it.
 
 WEB BUILD
 ---------
-app/src/main/assets/index.html is a complete standalone build. Serve the folder
-over HTTP(S) for the installable PWA (service worker + manifest), or open the
-file directly — the game needs no network access.
+app/src/main/assets/index.html is the same build, playable in a browser for
+testing or as an installable PWA (service worker + manifest). It needs no network.
 
 GAME CONTENT
 ------------
-Nine fighters, three arenas, one-player versus four CPU difficulties, local
-two-player, a three-phase boss fight and training. Keyboard and multi-touch
-controls, synthesized audio, adjustable graphics quality. See
-app/src/main/assets/README.md for controls and systems.
+Nine fighters, three arenas, an eight-chapter story campaign (24 fights), produce
+panic wave survival, one-player versus four CPU difficulties, local two-player, a
+three-phase boss fight, training, twelve trophies, haptics, adjustable audio,
+graphics quality and touch controls. See app/src/main/assets/README.md for
+controls, systems and known limitations, and CHANGELOG.md for version history.

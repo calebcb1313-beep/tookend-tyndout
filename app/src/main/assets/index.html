@@ -34,8 +34,9 @@
       <div class="menuRow">
         <button class="small" id="toHow">HOW TO PLAY</button>
         <button class="small" id="toSettings">SETTINGS</button>
+        <button class="small" id="toAchievements">TROPHIES</button>
       </div>
-      <div class="micro">v1.2 · 9 fighters · 3 arenas · story campaign · wave survival</div>
+      <div class="micro">v1.3 · 9 fighters · 3 arenas · story campaign · wave survival · trophies</div>
     </div>
   </section>
 
@@ -206,6 +207,7 @@
         <label class="setRow"><span>SOUND EFFECTS</span><input type="range" id="setSfx" min="0" max="100" value="80"><b id="setSfxVal">80</b></label>
         <label class="setRow"><span>MUTE ALL AUDIO</span><input type="checkbox" id="setMute"><b></b></label>
         <label class="setRow"><span>SCREEN SHAKE</span><input type="checkbox" id="setShake" checked><b></b></label>
+        <label class="setRow"><span>VIBRATION</span><input type="checkbox" id="setHaptics" checked><b></b></label>
         <label class="setRow"><span>TOUCH CONTROLS</span>
           <select id="setTouch"><option value="auto">AUTO</option><option value="on">ALWAYS ON</option><option value="off">OFF</option></select><b></b>
         </label>
@@ -219,6 +221,17 @@
         <button class="ghost" id="settingsBack">BACK</button>
         <button class="small" id="resetSettings">RESET DEFAULTS</button>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= TROPHIES ================= -->
+  <section id="screen-achievements" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">PRODUCE LEGENDS</div>
+      <h2>TROPHIES</h2>
+      <p class="lede" id="achSummary">0 of 12 trophies earned.</p>
+      <div class="achList" id="achList"></div>
+      <div class="rowEnd"><button class="ghost" id="achBack">MAIN MENU</button></div>
     </div>
   </section>
 
@@ -361,6 +374,7 @@
   <div id="rotateHint">Rotate your device for the full arena view</div>
 </div>
 
+<script src="js/save.js"></script>
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>
@@ -368,6 +382,7 @@
 <script src="js/arenas.js"></script>
 <script src="js/game.js"></script>
 <script src="js/survival.js"></script>
+<script src="js/achievements.js"></script>
 <script src="js/story.js"></script>
 <script src="js/ui.js"></script>
 <script>

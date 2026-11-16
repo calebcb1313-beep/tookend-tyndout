@@ -18,21 +18,16 @@
   /* Settings                                                     */
   /* ------------------------------------------------------------ */
   const DEFAULTS = {
-    music: 55, sfx: 80, muted: false, shake: true, quality: 'high',
+    music: 55, sfx: 80, muted: false, shake: true, haptics: true, quality: 'high',
     touch: 'auto', opacity: 80, size: 100
   };
-  let settings = Object.assign({}, DEFAULTS);
-  try {
-    const raw = localStorage.getItem('tt_settings_v1');
-    if (raw) settings = Object.assign(settings, JSON.parse(raw));
-  } catch (e) {}
-  function saveSettings() {
-    try { localStorage.setItem('tt_settings_v1', JSON.stringify(settings)); } catch (e) {}
-  }
+  let settings = Object.assign({}, DEFAULTS, TT.Save.read('tt_settings_v1', {}));
+  function saveSettings() { TT.Save.write('tt_settings_v1', settings); }
   function applySettings() {
     TT.Audio.setMusic(settings.music / 100);
     TT.Audio.setSfx(settings.sfx / 100);
     TT.Audio.setMuted(settings.muted);
+    TT.Haptics.setEnabled(settings.haptics !== false);
     G.shakeOn = !!settings.shake;
     G.setQuality(settings.quality);
     document.documentElement.style.setProperty('--touch-op', (settings.opacity / 100).toFixed(2));
@@ -50,6 +45,7 @@
     set('#setSize', settings.size); $('#setSizeVal').textContent = settings.size;
     const mute = $('#setMute'); if (mute) mute.checked = !!settings.muted;
     const shake = $('#setShake'); if (shake) shake.checked = !!settings.shake;
+    const haptics = $('#setHaptics'); if (haptics) haptics.checked = settings.haptics !== false;
     const touch = $('#setTouch'); if (touch) touch.value = settings.touch;
     $$('#setQuality button').forEach(b => b.classList.toggle('on', b.dataset.q === settings.quality));
   }
@@ -183,6 +179,14 @@
       btn.addEventListener('lostpointercapture', off);
       btn.addEventListener('contextmenu', e => e.preventDefault());
     });
+    // A cancelled pointer (call, gesture, app switch) must never leave a button stuck down.
+    const clearTouch = () => {
+      ACTS.forEach(a => { touch.p1[a] = false; });
+      $$('#touch .tbtn').forEach(b => b.classList.remove('on'));
+    };
+    document.addEventListener('pointercancel', clearTouch, true);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) clearTouch(); });
+    window.addEventListener('blur', clearTouch);
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('touchmove', e => {
       if (state.screen === 'fight') e.preventDefault();
@@ -232,6 +236,7 @@
     }
     if (name === 'results') renderResults();
     if (name === 'settings') syncSettingsUI();
+    if (name === 'achievements' && TT.Ach) TT.Ach.renderScreen();
   }
   G.showScreen = showScreen;
 
@@ -780,6 +785,8 @@
     });
     $('#toHow').onclick = () => { state.returnTo = 'title'; showScreen('how'); TT.sfx('ui'); };
     $('#toSettings').onclick = () => { state.returnTo = 'title'; showScreen('settings'); TT.sfx('ui'); };
+    $('#toAchievements').onclick = () => { state.returnTo = 'title'; TT.sfx('ui'); showScreen('achievements'); };
+    $('#achBack').onclick = () => { showScreen('title'); TT.sfx('cancel'); };
     $('#howBack').onclick = () => { showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); TT.sfx('cancel'); };
     $('#settingsBack').onclick = () => { showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); TT.sfx('cancel'); };
     $('#btnPauseHow').onclick = () => { state.returnTo = 'pause'; showScreen('how'); };
@@ -851,6 +858,7 @@
     bindRange('#setSize', 'size', '#setSizeVal');
     $('#setMute').onchange = e => { settings.muted = e.target.checked; applySettings(); saveSettings(); };
     $('#setShake').onchange = e => { settings.shake = e.target.checked; applySettings(); saveSettings(); };
+    $('#setHaptics').onchange = e => { settings.haptics = e.target.checked; applySettings(); saveSettings(); TT.Haptics.hit('light'); };
     $('#setTouch').onchange = e => { settings.touch = e.target.value; applySettings(); saveSettings(); };
     $$('#setQuality button').forEach(b => {
       b.onclick = () => { settings.quality = b.dataset.q; applySettings(); saveSettings(); TT.sfx('ui'); };
@@ -897,7 +905,7 @@
       case 'pause': resumeGame(); return true;
       case 'select': if (state.step > 0) { state.step--; renderSelect(); TT.sfx('cancel'); } else { showScreen(state.mode === 'cpu' || state.mode === 'boss' ? 'difficulty' : 'title'); } return true;
       case 'stage': openSelect(); return true;
-      case 'settings': case 'how': showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); return true;
+      case 'settings': case 'how': case 'achievements': showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); return true;
       case 'difficulty': showScreen('title'); return true;
       case 'results': G.quitToTitle(); showScreen('title'); return true;
       case 'survival': showScreen('title'); return true;

@@ -11,6 +11,21 @@
   const rnd = (a, b) => a + Math.random() * (b - a);
   let canvas, ctx;
 
+  /* Per-fighter CPU personalities. Multipliers sit on top of the difficulty
+     preset, so Easy is still Easy — but every opponent still feels different:
+     Chili rushes, Eggplant turtles, Onion zones, Banana jumps in. */
+  const AI_STYLE = {
+    lemon:     { aggression: 1.10, block: 1.00, reaction: 0.92, special: 1.05, jump: 1.00, heavy: 0.24, reach: 120 },
+    tomato:    { aggression: 1.22, block: 0.85, reaction: 0.98, special: 1.00, jump: 0.80, heavy: 0.34, reach: 110 },
+    eggplant:  { aggression: 0.88, block: 1.22, reaction: 0.95, special: 1.10, jump: 0.90, heavy: 0.30, reach: 128 },
+    spud:      { aggression: 1.05, block: 1.15, reaction: 1.10, special: 0.85, jump: 0.50, heavy: 0.42, reach: 132 },
+    banana:    { aggression: 0.98, block: 0.95, reaction: 0.94, special: 1.00, jump: 1.45, heavy: 0.26, reach: 138 },
+    chili:     { aggression: 1.32, block: 0.78, reaction: 0.88, special: 1.15, jump: 1.00, heavy: 0.28, reach: 116 },
+    onion:     { aggression: 0.92, block: 1.05, reaction: 0.96, special: 1.35, jump: 0.90, heavy: 0.22, reach: 146 },
+    blueberry: { aggression: 1.18, block: 0.90, reaction: 0.85, special: 1.05, jump: 1.25, heavy: 0.20, reach: 112 },
+    king:      { aggression: 1.15, block: 1.05, reaction: 0.90, special: 1.20, jump: 0.90, heavy: 0.36, reach: 132 }
+  };
+
   const G = TT.Game = {
     running: false, paused: false, screen: 'title', mode: 'cpu', difficulty: 'normal',
     arena: TT.ARENAS[0], fighters: [], projectiles: [], peels: [], queue: [],
@@ -125,10 +140,17 @@
     /* ------------------------------------------------------------ */
     makeAI(side) {
       const diff = T_difficulty(this.mode === 'boss' ? bossDifficulty(this.difficulty) : this.difficulty);
+      const f = this.fighters && this.fighters[side === 'p1' ? 0 : 1];
+      const id = (f && f.char && f.char.id) || ((side === 'p2' ? this.p2 : this.p1) || {}).id;
+      const st = AI_STYLE[id] || null;
       return {
-        reaction: diff.reaction, aggression: diff.aggression, block: diff.block,
-        combo: diff.combo, jump: diff.jump, special: diff.special, superRate: diff.super,
+        reaction: Math.max(3, Math.round(diff.reaction * (st ? st.reaction : 1))),
+        aggression: diff.aggression * (st ? st.aggression : 1),
+        block: diff.block * (st ? st.block : 1),
+        combo: diff.combo, jump: diff.jump * (st ? st.jump : 1),
+        special: diff.special * (st ? st.special : 1), superRate: diff.super,
         retreat: diff.retreat, dash: diff.dash, punish: diff.punish,
+        heavyBias: st ? st.heavy : 0.27, reach: st ? st.reach : 128,
         think: 0, intent: null, hold: 0, dummy: false, moveDir: 0,
         attackCd: 0, lastBlock: 0, aggressionMod: 1
       };
@@ -420,6 +442,7 @@
       this.hitstop = 26;
       this.slowmo = 0.3;
       TT.sfx('super');
+      if (TT.Haptics) TT.Haptics.hit('super');
       TT.FX.flash(f.colors.accent, 0.55);
       TT.FX.ring(f.x, f.y - f.hurtH * 0.5, f.colors.accent, 260, 10);
       TT.FX.shake(10);
@@ -490,6 +513,7 @@
         defender.meter = Math.min(T.METER_MAX, defender.meter + mv.gain * 0.4);
         attacker.meter = Math.min(T.METER_MAX, attacker.meter + mv.gain * 0.5);
         this.stats[defender.side].blocks++;
+        if (TT.Haptics) TT.Haptics.hit('block');
         TT.sfx('blocked');
         TT.FX.spark(defender.x - attacker.facing * defender.hurtW * 0.3, defender.y - defender.hurtH * 0.65, 8, 'onion', 0.8);
         TT.FX.text(defender.x, defender.y - defender.hurtH - 14, 'BLOCK', '#9fe0ff', 16, 'info');
@@ -506,6 +530,12 @@
       attacker.comboShown = attacker.combo;
       this.stats[attacker.side].dmg += dmg;
       this.stats[attacker.side].maxCombo = Math.max(this.stats[attacker.side].maxCombo, attacker.combo);
+      if (TT.Haptics) TT.Haptics.hit(kind);
+      if (TT.Ach) {
+        TT.Ach.bump('hits', 1);
+        if (attacker.combo >= 10) TT.Ach.unlock('combo10');
+        if (kind === 'super') TT.Ach.unlock('super_land');
+      }
       if (attacker.combo === 2) TT.sfx('combo', { n: 2 });
       if (attacker.combo === 3) TT.sfx('combo', { n: 3 });
       if (attacker.combo >= 5) TT.sfx('combo', { n: 5 });
@@ -555,6 +585,7 @@
       TT.FX.flash('#fff3d0', 0.6);
       TT.FX.shake(16);
       TT.FX.ring(defender.x, defender.y - defender.hurtH * 0.5, '#ffd25a', 220, 12);
+      if (TT.Haptics) TT.Haptics.hit('ko');
       TT.sfx('ko');
       this.announce('K.O.', '', '#ff5b4d');
       this.winner = attacker.side;
@@ -614,6 +645,15 @@
         arena: this.arena,
         mode: this.mode
       };
+      if (p1win && this.mode !== 'training' && TT.Ach) {
+        TT.Ach.unlock('first_win');
+        TT.Ach.bump('wins', 1);
+        TT.Ach.addRoster(this.p1.id);
+        if (this.wins[1] === 0) TT.Ach.unlock('sweep');
+        if (this.stats.p2.dmg === 0) TT.Ach.unlock('flawless');
+        if (this.mode === 'boss') TT.Ach.unlock('boss_win');
+        if (TT.Ach.counters.roster.length >= 9) TT.Ach.unlock('roster');
+      }
       TT.Audio.stopMusic();
       TT.Audio.sfx(p1win ? 'win' : 'lose');
       this.showScreen('results');
@@ -1106,6 +1146,7 @@
       const dx = opp.x - f.x;
       const dist = Math.abs(dx);
       const dir = dx > 0 ? 1 : -1;
+      const near = ai.reach || 128;
       const hpFrac = f.hp / f.maxHp, oppHp = opp.hp / opp.maxHp;
       const phaseAgg = ai.aggressionMod || 1;
 
@@ -1120,7 +1161,7 @@
           intent = 'block';
         } else if (oppRecovering && dist < 160 && r < ai.punish) {
           intent = 'punish';
-        } else if (dist < 150) {
+        } else if (dist < near) {
           if (r < ai.aggression * phaseAgg) intent = 'attack';
           else if (r < ai.aggression + 0.22) intent = 'block';
           else if (r < ai.aggression + 0.34) intent = 'retreat';
@@ -1162,18 +1203,18 @@
           if (dir > 0) out.left = true; else out.right = true;
           break;
         case 'punish':
-          if (dist > 130) { if (dir > 0) out.right = true; else out.left = true; }
+          if (dist > near) { if (dir > 0) out.right = true; else out.left = true; }
           else if (ai.attackCd <= 0) {
             if (Math.random() < 0.5) out.heavy = true; else out.light = true;
             ai.attackCd = Math.round(rnd(8, 18));
           }
           break;
         case 'attack': {
-          if (dist > 120) { if (dir > 0) out.right = true; else out.left = true; }
+          if (dist > near - 12) { if (dir > 0) out.right = true; else out.left = true; }
           else if (ai.attackCd <= 0) {
             const roll = Math.random();
             if (roll < 0.55) out.light = true;
-            else if (roll < 0.82) out.heavy = true;
+            else if (roll < 0.55 + (ai.heavyBias || 0.27)) out.heavy = true;
             else if (f.specialCd <= 0 && Math.random() < ai.special + 0.2) out.special = true;
             else out.light = true;
             ai.attackCd = Math.round(rnd(9, 26));
