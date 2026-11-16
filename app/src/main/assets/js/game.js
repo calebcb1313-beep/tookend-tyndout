@@ -162,6 +162,10 @@
         if (this.screen === 'fight' && !this.paused) { /* still animate title? */ }
         return;
       }
+      if (this.mode === 'survival') {
+        if (TT.Survival && TT.Survival.active) TT.Survival.update();
+        return;
+      }
       if (this.ann) {
         this.ann.t++;
         if (this.ann.t > this.ann.life) this.ann = null;
@@ -1206,6 +1210,10 @@
     /* ------------------------------------------------------------ */
     render() {
       if (!ctx) return;
+      if (this.mode === 'survival') {
+        if (TT.Survival && TT.Survival.active) TT.Survival.render();
+        return;
+      }
       ctx.save();
       const shake = this.shakeOn ? 1 : 0;
       if (shake) TT.FX.drawShake(ctx);
@@ -1564,6 +1572,8 @@
     },
 
     quitToTitle() {
+      if (TT.Survival) { TT.Survival.active = false; TT.Survival.paused = false; }
+      if (this.mode === 'survival') this.mode = 'cpu';
       this.running = false; this.paused = false; this.phase = 'idle';
       this.projectiles = []; this.peels = []; this.queue = [];
       this.fighters = []; this.ann = null;
@@ -1572,6 +1582,12 @@
     },
 
     restartMatch() {
+      if (this.mode === 'survival') {
+        this.running = true; this.paused = false;
+        TT.Survival.start(TT.Survival.opts || {});
+        this.showScreen('fight');
+        return;
+      }
       this.wins = [0, 0]; this.round = 1; this._carryMeter = [0, 0];
       this.stats = { p1: { dmg: 0, maxCombo: 0, supers: 0, blocks: 0 }, p2: { dmg: 0, maxCombo: 0, supers: 0, blocks: 0 } };
       this.running = true; this.paused = false;

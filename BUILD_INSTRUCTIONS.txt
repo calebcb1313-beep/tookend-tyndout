@@ -6,7 +6,7 @@ full-screen landscape Android WebView.
 APK
 ---
 A signed release APK ships next to this file:
-  Tookend-Tyndout-Produce-Brawl-1.0.0.apk   (versionCode 8, versionName 1.0.0)
+  Tookend-Tyndout-Produce-Brawl-1.1.0.apk   (versionCode 9, versionName 1.1.0)
 It is signed with keystore/tookend-release.jks, so newer builds install over
 older ones. Sideloading only — not a Play Store bundle.
 
@@ -27,7 +27,7 @@ CLOUD BUILD (GitHub Actions)
 ----------------------------
 Every push to main runs .github/workflows/android-apk.yml. It installs the SDK,
 builds the signed release APK, verifies the signature and publishes the APK on
-the v1.0.0 GitHub Release. Version names live in app/build.gradle; the release
+the v1.1.0 GitHub Release. Version names live in app/build.gradle; the release
 tag and APK filename live in the workflow's RELEASE_TAG / APK_NAME env values.
 
 WEB BUILD

@@ -28,12 +28,13 @@
         <button class="big" data-mode="2p">2 PLAYERS<small>Local versus on one device</small></button>
         <button class="big bossBtn" data-mode="boss">BOSS FIGHT<small>Challenge King Tomato</small></button>
         <button class="big" data-mode="training">TRAINING<small>Practice combos on a dummy</small></button>
+        <button class="big panic" data-mode="survival">PRODUCE PANIC<small>Endless waves · stack upgrades · every 5th wave is a boss</small></button>
       </div>
       <div class="menuRow">
         <button class="small" id="toHow">HOW TO PLAY</button>
         <button class="small" id="toSettings">SETTINGS</button>
       </div>
-      <div class="micro">v1.0 · 9 fighters · 3 arenas · built for touch</div>
+      <div class="micro">v1.1 · 9 fighters · 3 arenas · wave survival · built for touch</div>
     </div>
   </section>
 
@@ -89,6 +90,54 @@
       <button class="big primary fightBtn" id="toBattle">TO BATTLE!</button>
       <div class="hint" id="stageHint">Best of three · 60 second rounds</div>
     </footer>
+  </section>
+
+  <!-- ================= PRODUCE PANIC ================= -->
+  <section id="screen-survival" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">ENDLESS MODE · THE AISLE HAS GONE FERAL</div>
+      <h2>PRODUCE PANIC</h2>
+      <p class="lede">Pick a fighter, survive escalating waves, and stack upgrades between rounds. Every fifth wave sends a corrupted boss. How long can the aisle hold?</p>
+      <div class="diffGrid survGrid" id="survGrid"></div>
+      <div class="bestLine" id="survBest"></div>
+      <div class="rowEnd">
+        <button class="ghost" id="survBack">BACK</button>
+        <span class="hint">Auto-fire handles the shooting · you handle the panic</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UPGRADE PICK ================= -->
+  <section id="screen-upgrade" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow" id="upEyebrow">WAVE CLEAR</div>
+      <h2>CHOOSE AN UPGRADE</h2>
+      <div class="upGrid" id="upGrid"></div>
+      <div class="rowEnd">
+        <span class="hint" id="upHint"></span>
+        <button class="small" id="upReroll">REROLL</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PANIC RESULT ================= -->
+  <section id="screen-panicover" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow" id="poEyebrow">RUN OVER</div>
+      <h2 id="poTitle">THE HORDE GOT YOU</h2>
+      <div class="poBody">
+        <div class="poPortrait"><canvas id="poPortrait" width="240" height="240"></canvas></div>
+        <div class="poInfo">
+          <div class="poChar" id="poChar"></div>
+          <div class="statTable" id="poStats"></div>
+        </div>
+      </div>
+      <div class="menuRow">
+        <button class="big primary" id="poRetry">RUN IT AGAIN</button>
+        <button class="big" id="poChars">CHANGE FIGHTER</button>
+        <button class="big ghost" id="poMenu">MAIN MENU</button>
+      </div>
+    </div>
   </section>
 
   <!-- ================= SETTINGS ================= -->
@@ -164,6 +213,16 @@
             <li><b>SUPER</b> spends a full meter for a cinematic attack.</li>
             <li><b>GUARD</b> blocks high and low; blocking still takes chip damage.</li>
             <li>Double-tap left or right on the pad to dash.</li>
+          </ul>
+        </div>
+        <div class="howCard">
+          <h4>PRODUCE PANIC</h4>
+          <ul class="bullets">
+            <li>Your fighter fires automatically at the nearest enemy, so all you do is move, jump and dash.</li>
+            <li>Collect green experience gems to level up; every wave clear also offers an upgrade.</li>
+            <li>Every fifth wave is a boss. Survive as long as you can.</li>
+            <li><b>NOVA</b> (I / SUPER button) clears nearby enemies once the meter is full.</li>
+            <li>Five difficulties from EASY to ROTTEN NIGHTMARE, with a saved best wave for each.</li>
           </ul>
         </div>
         <div class="howCard">
@@ -252,6 +311,7 @@
 <script src="js/art.js"></script>
 <script src="js/arenas.js"></script>
 <script src="js/game.js"></script>
+<script src="js/survival.js"></script>
 <script src="js/ui.js"></script>
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

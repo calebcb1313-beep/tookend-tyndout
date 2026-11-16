@@ -192,7 +192,7 @@
     if (el) el.classList.toggle('hidden', !on);
     const sup = $('.actions .super');
     if (sup) {
-      const p1 = G.fighters[0];
+      const p1 = G.mode === 'survival' && TT.Survival.player ? TT.Survival.player : G.fighters[0];
       sup.classList.toggle('ready', !!(p1 && p1.meter >= TT.TUNE.METER_MAX));
     }
   }
@@ -275,6 +275,93 @@
   }
 
   /* ------------------------------------------------------------ */
+  /* Produce Panic                                                */
+  /* ------------------------------------------------------------ */
+  function openSurvival() {
+    state.mode = 'survival';
+    const grid = $('#survGrid');
+    grid.innerHTML = '';
+    const diffs = TT.Survival.difficulties;
+    Object.keys(diffs).forEach(k => {
+      const d = diffs[k];
+      const b = document.createElement('button');
+      b.className = 'diffCard surv ' + (k === 'nightmare' ? 'expert' : k);
+      const best = (TT.Survival.best && TT.Survival.best[k]) || 0;
+      b.innerHTML = '<b>' + d.name + '</b><span>' + d.desc + '</span><em>BEST WAVE ' + (best || '—') + '</em>';
+      b.onclick = () => { state.difficulty = k; TT.sfx('select'); openSelect(); };
+      grid.appendChild(b);
+    });
+    $('#survBest').textContent = 'Best wave is saved separately for each difficulty.';
+    TT.sfx('ui');
+    showScreen('survival');
+  }
+
+  function startSurvival() {
+    TT.Audio.unlock();
+    TT.sfx('fight');
+    const arena = TT.ARENAS[(Math.random() * TT.ARENAS.length) | 0];
+    G.mode = 'survival';
+    G.running = true;
+    G.paused = false;
+    TT.Survival.start({
+      char: state.picks[0].id,
+      skin: state.picks[0].skin || 0,
+      difficulty: state.difficulty,
+      arena
+    });
+    showScreen('fight');
+  }
+
+  function showUpgrades(picks, coins, rerollCost, remaining) {
+    const grid = $('#upGrid');
+    grid.innerHTML = '';
+    const pl = TT.Survival.player;
+    picks.forEach(u => {
+      const b = document.createElement('button');
+      b.className = 'upCard';
+      const stacks = (pl.stacks && pl.stacks[u.id]) || 0;
+      b.innerHTML = '<span class="tag">' + u.tag + '</span><b>' + u.name + '</b><p>' + u.desc + '</p>' +
+        '<em>' + (stacks ? 'OWNED ×' + stacks : 'NEW') + '</em>';
+      b.onclick = () => TT.Survival.choose(u.id);
+      grid.appendChild(b);
+    });
+    const left = Math.max(1, remaining || 1);
+    $('#upEyebrow').textContent = 'WAVE ' + TT.Survival.wave + ' CLEAR · ' + left + ' PICK' + (left > 1 ? 'S' : '') + ' LEFT';
+    $('#upHint').textContent = (TT.Survival.player.coins || 0) + ' coins banked';
+    const rb = $('#upReroll');
+    rb.textContent = 'REROLL · ' + rerollCost;
+    rb.disabled = (TT.Survival.player.coins || 0) < rerollCost;
+    rb.onclick = () => {
+      const next = TT.Survival.reroll();
+      if (next) {
+        TT.sfx('ui');
+        showUpgrades(next, TT.Survival.player.coins || 0, TT.Survival.rerollCost(), TT.Survival.pendingPicks);
+      }
+    };
+    showScreen('upgrade');
+  }
+
+  function showSurvivalEnd(s) {
+    const char = TT.getChar(s.char);
+    $('#poTitle').textContent = s.newBest ? 'NEW BEST WAVE' : 'THE HORDE GOT YOU';
+    $('#poEyebrow').textContent = s.diffName + ' · ' + s.arena;
+    const pc = $('#poPortrait');
+    const g = pc.getContext('2d');
+    g.clearRect(0, 0, pc.width, pc.height);
+    g.drawImage(TT.Art.portrait(s.char, s.skin || 0), 0, 0, pc.width, pc.height);
+    $('#poChar').textContent = char.name + ' · ' + char.title;
+    $('#poStats').innerHTML =
+      '<div class="row head"><span>RESULT</span><b>RUN</b><b>BEST</b></div>' +
+      '<div class="row"><span>Wave reached</span><b>' + s.wave + '</b><b>' + s.best + '</b></div>' +
+      '<div class="row"><span>Enemies down</span><b>' + s.kills + '</b><b>—</b></div>' +
+      '<div class="row"><span>Level reached</span><b>' + s.level + '</b><b>—</b></div>' +
+      '<div class="row"><span>Coins earned</span><b>' + s.coins + '</b><b>—</b></div>' +
+      '<div class="row"><span>Survived</span><b>' + s.time + 's</b><b>—</b></div>';
+    showScreen('panicover');
+    TT.Audio.stopMusic();
+  }
+
+  /* ------------------------------------------------------------ */
   /* Character select                                             */
   /* ------------------------------------------------------------ */
   function openSelect() {
@@ -292,6 +379,7 @@
   }
 
   function selectPrompt() {
+    if (state.mode === 'survival') return { eyebrow: 'SURVIVOR', title: 'CHOOSE YOUR FIGHTER', status: 'PRODUCE PANIC', cls: '' };
     if (state.mode === '2p') {
       return state.step === 0 ? { eyebrow: 'PLAYER 1', title: 'CHOOSE YOUR FIGHTER', status: 'P1 CHOOSING', cls: '' }
         : { eyebrow: 'PLAYER 2', title: 'CHOOSE YOUR FIGHTER', status: 'P2 CHOOSING', cls: 'p2' };
@@ -373,6 +461,11 @@
   function pickChar(id) {
     TT.Audio.unlock();
     TT.sfx('select');
+    if (state.mode === 'survival') {
+      state.picks[0] = { id, skin: state.preview.id === id ? (state.preview.skin || 0) : 0 };
+      startSurvival();
+      return;
+    }
     if (state.mode === 'boss' && state.step === 0) {
       state.picks[0] = { id, skin: state.preview.skin || 0 };
       state.picks[1] = { id: 'king', skin: 0 };
@@ -484,6 +577,7 @@
   function resumeGame() {
     G.paused = false;
     TT.Audio.startMusic(G.arena, G.mode === 'boss');
+    if (G.mode === 'survival' && TT.Survival) TT.Survival.paused = false;
     showScreen('fight');
     Input.reset();
   }
@@ -552,7 +646,8 @@
         TT.Audio.unlock(); TT.sfx('select');
         const mode = b.dataset.mode;
         state.mode = mode;
-        if (mode === 'cpu' || mode === 'boss') openDifficulty(mode);
+        if (mode === 'survival') { state.difficulty = 'normal'; openSurvival(); }
+        else if (mode === 'cpu' || mode === 'boss') openDifficulty(mode);
         else { state.difficulty = 'normal'; openSelect(); }
       };
     });
@@ -576,6 +671,17 @@
     };
     $('#btnChange').onclick = () => { TT.sfx('ui'); openSelect(); };
     $('#btnResultsMenu').onclick = () => { G.quitToTitle(); TT.sfx('cancel'); showScreen('title'); };
+    $('#survBack').onclick = () => { showScreen('title'); TT.sfx('cancel'); };
+    $('#poRetry').onclick = () => {
+      TT.sfx('select');
+      G.mode = 'survival';
+      G.running = true;
+      G.paused = false;
+      TT.Survival.start(TT.Survival.opts || {});
+      showScreen('fight');
+    };
+    $('#poChars').onclick = () => { TT.sfx('ui'); openSelect(); };
+    $('#poMenu').onclick = () => { G.quitToTitle(); TT.sfx('cancel'); showScreen('title'); buildTitleChars(); };
     $('#selBack').onclick = () => {
       if (state.step > 0) { state.step--; renderSelect(); TT.sfx('cancel'); }
       else { showScreen(state.mode === 'cpu' || state.mode === 'boss' ? 'difficulty' : 'title'); TT.sfx('cancel'); }
@@ -661,6 +767,9 @@
       case 'settings': case 'how': showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); return true;
       case 'difficulty': showScreen('title'); return true;
       case 'results': G.quitToTitle(); showScreen('title'); return true;
+      case 'survival': showScreen('title'); return true;
+      case 'upgrade': return true;
+      case 'panicover': G.quitToTitle(); showScreen('title'); return true;
       default: return false;
     }
   }
@@ -668,7 +777,8 @@
   TT.UI = {
     state,
     get settings() { return settings; },
-    applySettings, showScreen, openSelect, openDifficulty, startFight, togglePause, renderResults, back
+    applySettings, showScreen, openSelect, openDifficulty, startFight, togglePause, renderResults, back,
+    openSurvival, startSurvival, showUpgrades, showSurvivalEnd
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

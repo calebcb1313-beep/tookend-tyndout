@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v1.0.0
-  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.0.0.apk
+  RELEASE_TAG: v1.1.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.1.0.apk
 
 jobs:
   build:
@@ -76,7 +76,12 @@ jobs:
           body: |
             TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 1.0.0 (versionCode 8) — installable release APK.
+            Android build 1.1.0 (versionCode 9) — installable release APK.
+
+            NEW IN 1.1.0 — PRODUCE PANIC, a wave-survival mode: auto-firing
+            fighters, five enemy archetypes with elites, upgrade picks after every
+            wave (with coin rerolls), boss waves every fifth round, five difficulties
+            from Easy to Rotten Nightmare, and a saved best wave for each.
 
             A complete produce-fighting remaster: nine fighters (Lemon, Tomato, Eggplant,
             Spud, Banana, Chili, Onion, Blueberry and King Tomato), three layered arenas
