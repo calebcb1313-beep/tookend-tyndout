@@ -453,3 +453,7 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 .achToast b { font-size: 9px; letter-spacing: 0.22em; color: #ffd45c; }
 .achToast span { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; }
 .achToast small { font-size: 10px; opacity: 0.72; }
+
+/* ---------- story branch choices ---------- */
+.talkChoices { display: none; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
+.talkChoices.show { display: flex; }

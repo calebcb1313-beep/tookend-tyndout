@@ -9,9 +9,9 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v1.3.0
-  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.3.0.apk
-  AAB_NAME: Tookend-Tyndout-Produce-Brawl-1.3.0.aab
+  RELEASE_TAG: v1.4.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.4.0.apk
+  AAB_NAME: Tookend-Tyndout-Produce-Brawl-1.4.0.aab
 
 jobs:
   build:
@@ -89,8 +89,18 @@ jobs:
           body: |
             TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 1.3.0 (versionCode 11) — installable release APK plus an
+            Android build 1.4.0 (versionCode 12) — installable release APK plus an
             Android App Bundle for Play Console uploads.
+
+            NEW IN 1.4.0 — the campaign now branches. Clearing the pantry asks what to
+            do with the prisoners, and that answer comes back in chapter seven. Beating
+            King Tomato offers a real choice: spare him for the restored-aisle ending or
+            take the crown for the new-crown ending, each with its own epilogue and a
+            TWO CROWNS trophy for seeing both. A Reduced Motion setting disables screen
+            shake and full-screen flashes without touching gameplay. Rendering now
+            adapts its internal resolution when a device cannot hold the frame rate:
+            measured here at 41 -> 52 fps at high quality on a software renderer, with
+            the game dropping to a floor of 70% resolution instead of stuttering.
 
             NEW IN 1.3.0 — progression and platform polish. Twelve trophies driven by
             real gameplay (first win, clean sweep, flawless match, ten-hit combo, super

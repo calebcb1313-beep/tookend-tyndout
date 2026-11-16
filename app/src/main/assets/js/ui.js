@@ -18,7 +18,7 @@
   /* Settings                                                     */
   /* ------------------------------------------------------------ */
   const DEFAULTS = {
-    music: 55, sfx: 80, muted: false, shake: true, haptics: true, quality: 'high',
+    music: 55, sfx: 80, muted: false, shake: true, haptics: true, reduceMotion: false, quality: 'high',
     touch: 'auto', opacity: 80, size: 100
   };
   let settings = Object.assign({}, DEFAULTS, TT.Save.read('tt_settings_v1', {}));
@@ -28,7 +28,9 @@
     TT.Audio.setSfx(settings.sfx / 100);
     TT.Audio.setMuted(settings.muted);
     TT.Haptics.setEnabled(settings.haptics !== false);
-    G.shakeOn = !!settings.shake;
+    const reduced = !!settings.reduceMotion;
+    G.shakeOn = !!settings.shake && !reduced;
+    TT.FX.reduced = reduced;
     G.setQuality(settings.quality);
     document.documentElement.style.setProperty('--touch-op', (settings.opacity / 100).toFixed(2));
     document.documentElement.style.setProperty('--touch-scale', (settings.size / 100).toFixed(2));
@@ -46,6 +48,7 @@
     const mute = $('#setMute'); if (mute) mute.checked = !!settings.muted;
     const shake = $('#setShake'); if (shake) shake.checked = !!settings.shake;
     const haptics = $('#setHaptics'); if (haptics) haptics.checked = settings.haptics !== false;
+    const reduceMotion = $('#setReduceMotion'); if (reduceMotion) reduceMotion.checked = !!settings.reduceMotion;
     const touch = $('#setTouch'); if (touch) touch.value = settings.touch;
     $$('#setQuality button').forEach(b => b.classList.toggle('on', b.dataset.q === settings.quality));
   }
@@ -370,22 +373,58 @@
     });
   }
 
-  function renderTalk() {
-    const line = talkQueue[0];
-    if (!line) return;
-    const char = TT.getChar(line.who);
+  function renderSpeaker(who, text) {
+    const char = TT.getChar(who);
     $('#talkName').textContent = char.name;
-    $('#talkText').textContent = line.text;
+    $('#talkText').textContent = text;
     const pc = $('#talkPortrait');
     const g = pc.getContext('2d');
     g.clearRect(0, 0, pc.width, pc.height);
-    g.drawImage(TT.Art.portrait(line.who, 0), 0, 0, pc.width, pc.height);
+    g.drawImage(TT.Art.portrait(who, 0), 0, 0, pc.width, pc.height);
+  }
+
+  function clearTalkExtras() {
+    const host = $('#talkChoices');
+    if (host) { host.innerHTML = ''; host.classList.remove('show'); }
+    const next = $('#talkNext');
+    if (next) next.style.display = '';
+  }
+
+  function renderTalk() {
+    const line = talkQueue[0];
+    if (!line) return;
+    renderSpeaker(line.who, line.text);
   }
 
   function showStoryTalk(lines, done) {
     talkQueue = lines.slice();
     talkDone = done;
+    clearTalkExtras();
     renderTalk();
+    TT.Audio.unlock();
+    showScreen('storytalk');
+  }
+
+  /* A branch point: the dialogue screen becomes a question with real answers. */
+  function showStoryChoice(question, options, done) {
+    talkQueue = [];
+    talkDone = null;
+    clearTalkExtras();
+    renderSpeaker('lemon', question);
+    const host = $('#talkChoices');
+    host.classList.add('show');
+    $('#talkNext').style.display = 'none';
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'big';
+      b.textContent = opt.label;
+      b.onclick = () => {
+        TT.sfx('select');
+        clearTalkExtras();
+        done(opt.value);
+      };
+      host.appendChild(b);
+    });
     TT.Audio.unlock();
     showScreen('storytalk');
   }
@@ -400,7 +439,27 @@
     if (next) next();
   }
 
-  function showStoryEnding() {
+  const ENDINGS = {
+    spare: {
+      eyebrow: 'CHAPTER 8 COMPLETE · THE CROWN SPARED',
+      title: 'THE AISLE IS FREE',
+      text: 'The crown breaks and the Rotten Core goes quiet. One by one the lanterns come back on across the market. Lemon does not take the throne. Instead the fighters of the Produce Kingdom stand together in aisle seven, bruised, peeling, and finally home.',
+      quote: '“Tiny fruits. Big grudges. One produce aisle.”'
+    },
+    rule: {
+      eyebrow: 'CHAPTER 8 COMPLETE · THE NEW CROWN',
+      title: 'THE NEW CROWN',
+      text: 'The crown cracks and King Tomato kneels in the ruin of his own core. Lemon picks the crown up, tests its weight, and puts it on. The market goes quiet the way a room goes quiet when the fighting is over and the rules have changed. Nobody cheers. The lanterns come on anyway.',
+      quote: '“Someone has to keep the aisle in line.”'
+    }
+  };
+
+  function showStoryEnding(choice) {
+    const e = ENDINGS[choice] || ENDINGS.spare;
+    $('#seEyebrow').textContent = e.eyebrow;
+    $('#seTitle').textContent = e.title;
+    $('#seText').textContent = e.text;
+    $('#seQuote').textContent = e.quote;
     TT.sfx('win');
     showScreen('storyend');
   }
@@ -859,6 +918,7 @@
     $('#setMute').onchange = e => { settings.muted = e.target.checked; applySettings(); saveSettings(); };
     $('#setShake').onchange = e => { settings.shake = e.target.checked; applySettings(); saveSettings(); };
     $('#setHaptics').onchange = e => { settings.haptics = e.target.checked; applySettings(); saveSettings(); TT.Haptics.hit('light'); };
+    $('#setReduceMotion').onchange = e => { settings.reduceMotion = e.target.checked; applySettings(); saveSettings(); };
     $('#setTouch').onchange = e => { settings.touch = e.target.value; applySettings(); saveSettings(); };
     $$('#setQuality button').forEach(b => {
       b.onclick = () => { settings.quality = b.dataset.q; applySettings(); saveSettings(); TT.sfx('ui'); };
@@ -924,7 +984,7 @@
     get settings() { return settings; },
     applySettings, showScreen, openSelect, openDifficulty, startFight, togglePause, renderResults, back,
     openSurvival, startSurvival, showUpgrades, showSurvivalEnd,
-    openStoryMap, openStoryWorld, showStoryTalk, startStoryBattle, showStoryEnding
+    openStoryMap, openStoryWorld, showStoryTalk, showStoryChoice, startStoryBattle, showStoryEnding
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

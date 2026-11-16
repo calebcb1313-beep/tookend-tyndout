@@ -36,7 +36,7 @@
         <button class="small" id="toSettings">SETTINGS</button>
         <button class="small" id="toAchievements">TROPHIES</button>
       </div>
-      <div class="micro">v1.3 · 9 fighters · 3 arenas · story campaign · wave survival · trophies</div>
+      <div class="micro">v1.4 · 9 fighters · 3 arenas · story campaign · wave survival · trophies</div>
     </div>
   </section>
 
@@ -130,6 +130,7 @@
       <div class="talkBody">
         <div class="talkName" id="talkName">LEMON</div>
         <p class="talkText" id="talkText"></p>
+        <div class="talkChoices" id="talkChoices"></div>
         <button class="big primary" id="talkNext">CONTINUE</button>
       </div>
     </div>
@@ -138,10 +139,10 @@
   <!-- ================= STORY ENDING ================= -->
   <section id="screen-storyend" class="screen">
     <div class="panel wide endPanel">
-      <div class="eyebrow">CHAPTER 8 COMPLETE</div>
-      <h2>THE AISLE IS FREE</h2>
-      <p class="lede endText">The crown breaks. The Rotten Core goes quiet, and one by one the lanterns come back on across the market. Lemon does not take the throne. Instead the fighters of the Produce Kingdom stand together in aisle seven, bruised, peeling, and finally home.</p>
-      <p class="quote endQuote">“Tiny fruits. Big grudges. One produce aisle.”</p>
+      <div class="eyebrow" id="seEyebrow">CHAPTER 8 COMPLETE</div>
+      <h2 id="seTitle">THE AISLE IS FREE</h2>
+      <p class="lede endText" id="seText">The crown breaks. The Rotten Core goes quiet, and one by one the lanterns come back on across the market. Lemon does not take the throne. Instead the fighters of the Produce Kingdom stand together in aisle seven, bruised, peeling, and finally home.</p>
+      <p class="quote endQuote" id="seQuote">“Tiny fruits. Big grudges. One produce aisle.”</p>
       <div class="menuRow">
         <button class="big primary" id="seContinue">BACK TO WORLD MAP</button>
         <button class="big ghost" id="seMenu">MAIN MENU</button>
@@ -208,6 +209,7 @@
         <label class="setRow"><span>MUTE ALL AUDIO</span><input type="checkbox" id="setMute"><b></b></label>
         <label class="setRow"><span>SCREEN SHAKE</span><input type="checkbox" id="setShake" checked><b></b></label>
         <label class="setRow"><span>VIBRATION</span><input type="checkbox" id="setHaptics" checked><b></b></label>
+        <label class="setRow"><span>REDUCED MOTION</span><input type="checkbox" id="setReduceMotion"><b></b></label>
         <label class="setRow"><span>TOUCH CONTROLS</span>
           <select id="setTouch"><option value="auto">AUTO</option><option value="on">ALWAYS ON</option><option value="off">OFF</option></select><b></b>
         </label>
@@ -229,7 +231,7 @@
     <div class="panel wide">
       <div class="eyebrow">PRODUCE LEGENDS</div>
       <h2>TROPHIES</h2>
-      <p class="lede" id="achSummary">0 of 12 trophies earned.</p>
+      <p class="lede" id="achSummary">0 of 13 trophies earned.</p>
       <div class="achList" id="achList"></div>
       <div class="rowEnd"><button class="ghost" id="achBack">MAIN MENU</button></div>
     </div>

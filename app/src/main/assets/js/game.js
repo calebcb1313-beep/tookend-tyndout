@@ -44,7 +44,7 @@
     resize() {
       if (!canvas || !ctx) return;
       const cap = this.quality === 'low' ? 1 : this.quality === 'medium' ? 1.35 : 1.7;
-      const dpr = Math.min(window.devicePixelRatio || 1, cap);
+      const dpr = Math.min(window.devicePixelRatio || 1, cap) * (this._perfScale || 1);
       canvas.width = W * dpr;
       canvas.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -176,6 +176,25 @@
       }
       if (steps === 3) this.acc = 0;
       this.render();
+      this.adaptQuality(dt);
+    },
+
+    /* Adaptive resolution: if the device cannot hold ~45 fps at the chosen
+       quality, shade fewer pixels instead of letting input lag build up. */
+    adaptQuality(dt) {
+      if (this.screen !== 'fight' || this.paused) { this._frameAcc = 0; this._frameN = 0; return; }
+      this._frameAcc = (this._frameAcc || 0) + dt;
+      this._frameN = (this._frameN || 0) + 1;
+      if (this._frameN < 90) return;
+      const avg = this._frameAcc / this._frameN;
+      this._frameAcc = 0; this._frameN = 0;
+      if (avg > 0.023 && (this._perfScale || 1) > 0.7) {
+        this._perfScale = Math.max(0.7, (this._perfScale || 1) - 0.12);
+        this.resize();
+      } else if (avg < 0.0145 && (this._perfScale || 1) < 1) {
+        this._perfScale = Math.min(1, (this._perfScale || 1) + 0.08);
+        this.resize();
+      }
     },
 
     step() {

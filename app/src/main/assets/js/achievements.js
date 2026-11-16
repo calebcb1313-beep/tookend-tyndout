@@ -18,28 +18,29 @@
     { id: 'wave10', name: 'PANIC PRO', desc: 'Reach wave 10 in Produce Panic.', target: 10, stat: 'waveBest' },
     { id: 'wave20', name: 'AISLE LEGEND', desc: 'Reach wave 20 in Produce Panic.', target: 20, stat: 'waveBest' },
     { id: 'roster', name: 'FULL ROSTER', desc: 'Win a match with all nine fighters.', target: 9, stat: 'roster' },
-    { id: 'century', name: 'GRUDGE COLLECTOR', desc: 'Land 500 hits across all modes.', target: 500, stat: 'hits' }
+    { id: 'century', name: 'GRUDGE COLLECTOR', desc: 'Land 500 hits across all modes.', target: 500, stat: 'hits' },
+    { id: 'both_endings', name: 'TWO CROWNS', desc: 'Reach both story endings.', target: 2, stat: 'endings' }
   ];
 
   const data = (function () {
     const d = TT.Save.read(KEY, null);
     return {
       unlocked: (d && d.unlocked) || {},
-      counters: Object.assign({ wins: 0, hits: 0, waveBest: 0, roster: [] }, (d && d.counters) || {})
+      counters: Object.assign({ wins: 0, hits: 0, waveBest: 0, roster: [], endings: [] }, (d && d.counters) || {})
     };
   })();
 
   function persist() { TT.Save.write(KEY, data); }
 
   function valueOf(def) {
-    if (def.stat === 'roster') return data.counters.roster.length;
+    if (def.stat && Array.isArray(data.counters[def.stat])) return data.counters[def.stat].length;
     if (def.stat) return data.counters[def.stat] || 0;
     return data.unlocked[def.id] ? 1 : 0;
   }
 
   function checkStat(key) {
     DEFS.forEach(def => {
-      if (def.stat === key && !data.unlocked[def.id] && valueOf(def) >= def.target) unlock(def.id);
+      if (def.stat === key && !data.unlocked[def.id] && valueOf(def) >= def.target) Ach.unlock(def.id);
     });
   }
 
@@ -101,9 +102,16 @@
       checkStat('roster');
     },
 
+    addEnding(choice) {
+      if (!choice || data.counters.endings.indexOf(choice) !== -1) return;
+      data.counters.endings.push(choice);
+      persist();
+      checkStat('endings');
+    },
+
     reset() {
       data.unlocked = {};
-      data.counters = { wins: 0, hits: 0, waveBest: 0, roster: [] };
+      data.counters = { wins: 0, hits: 0, waveBest: 0, roster: [], endings: [] };
       persist();
     },
 

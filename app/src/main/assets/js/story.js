@@ -149,9 +149,10 @@
 
   function loadProgress() {
     const p = TT.Save.read(SAVE_KEY, null);
-    if (!p || typeof p !== 'object') return { unlocked: 1, cleared: {}, ending: false };
+    if (!p || typeof p !== 'object') return { unlocked: 1, cleared: {}, ending: false, choices: {} };
     const cleared = p.cleared && typeof p.cleared === 'object' ? p.cleared : {};
-    return { unlocked: p.unlocked || 1, cleared: cleared, ending: !!p.ending };
+    const choices = p.choices && typeof p.choices === 'object' ? p.choices : {};
+    return { unlocked: p.unlocked || 1, cleared: cleared, ending: !!p.ending, choices: choices };
   }
   function saveProgress(p) {
     TT.Save.write(SAVE_KEY, p);
@@ -202,10 +203,19 @@
     enterWorld(i) {
       const w = WORLDS[i];
       this.world = i;
-      this.playDialogue(w.intro, () => TT.UI.openStoryWorld(i));
+      this.progress.choices = this.progress.choices || {};
+      // Earlier decisions echo forward instead of vanishing after the choice screen.
+      const lines = w.intro.slice();
+      if (i === 6 && this.progress.choices.pantry) {
+        lines.push(this.progress.choices.pantry === 'sealed'
+          ? { who: 'lemon', text: 'The pantry door is still sealed. Whatever is behind it is still hungry.' }
+          : { who: 'lemon', text: 'The pantry is empty now. They got out. That has to count for something.' });
+      }
+      this.playDialogue(lines, () => TT.UI.openStoryWorld(i));
     },
 
     playDialogue(lines, done) {
+      if (!lines || !lines.length) { if (done) done(); return; }
       TT.UI.showStoryTalk(lines, done);
     },
 
@@ -224,6 +234,8 @@
     onMatchEnd(result) {
       const w = WORLDS[this.world];
       const b = w.battles[this.battle];
+      // Progress saved by an older build may predate the choices field.
+      this.progress.choices = this.progress.choices || {};
       if (!result || !result.p1win) {
         this.playDialogue([
           { who: b.id, text: 'Pathetic. Come back when you can actually fight.' },
@@ -247,11 +259,43 @@
       TT.Haptics.hit('ko');
       TT.sfx('win');
       if (finalWin) {
-        this.playDialogue(w.outro, () => TT.UI.showStoryEnding());
+        this.playDialogue(w.outro, () => {
+          TT.UI.showStoryChoice(
+            'The crown is cracked under your boot and the whole aisle is watching. What happens next is yours to decide.',
+            [
+              { label: 'SPARE THE KING', value: 'spare' },
+              { label: 'TAKE THE CROWN', value: 'rule' }
+            ],
+            choice => {
+              this.progress.choices.crown = choice;
+              this.progress.ending = true;
+              saveProgress(this.progress);
+              if (TT.Ach) TT.Ach.addEnding(choice);
+              TT.UI.showStoryEnding(choice);
+            }
+          );
+        });
         return;
       }
       if (finishedWorld) {
-        this.playDialogue(w.outro, () => TT.UI.openStoryMap());
+        this.playDialogue(w.outro, () => {
+          if (this.world === 3 && !this.progress.choices.pantry) {
+            TT.UI.showStoryChoice(
+              'The pantry prisoners are out and the lock is still in your hand.',
+              [
+                { label: 'LEAVE IT OPEN', value: 'free' },
+                { label: 'SEAL THE PANTRY', value: 'sealed' }
+              ],
+              choice => {
+                this.progress.choices.pantry = choice;
+                saveProgress(this.progress);
+                TT.UI.openStoryMap();
+              }
+            );
+            return;
+          }
+          TT.UI.openStoryMap();
+        });
         return;
       }
       this.playDialogue([
@@ -261,7 +305,7 @@
     },
 
     resetProgress() {
-      this.progress = { unlocked: 1, cleared: {} };
+      this.progress = { unlocked: 1, cleared: {}, ending: false, choices: {} };
       saveProgress(this.progress);
     }
   };

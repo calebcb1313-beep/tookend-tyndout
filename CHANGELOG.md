@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.4.0 — versionCode 12
+
+- **Branching campaign:** clearing The Underground Pantry asks whether to free the
+  prisoners or seal it, and the answer returns as extra dialogue in chapter seven.
+- **Two endings:** the King Tomato finale is a real choice — spare him for *The Aisle Is
+  Free*, or take the crown for *The New Crown*, each with its own epilogue, saved
+  decision and a TWO CROWNS trophy for reaching both.
+- **Reduced Motion:** a settings toggle that disables screen shake and full-screen
+  flashes at the effects layer, so gameplay and timing are untouched.
+- **Adaptive resolution:** when the device cannot hold frame rate at the chosen quality,
+  the internal render resolution steps down (floor 70%) instead of dropping frames.
+  Measured on a software renderer: 40.9 → 51.5 fps at high quality.
+- **Fixed:** progress objects created before 1.4.0 threw when a chapter was cleared
+  (missing choices field), and counter-based trophies called an undefined function, so
+  wave/roster/ending trophies could never unlock. Both found by tests, both fixed.
+
 ## 1.3.0 — versionCode 11
 
 - **Trophies:** twelve achievements driven by real gameplay (first win, clean sweep,

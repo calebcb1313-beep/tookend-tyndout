@@ -43,6 +43,8 @@
     shakeAmt: 0, shakeDecay: 0.88, flashCol: '#ffffff', flashAmt: 0,
     quality: 'high', maxParticles: 340, freeze: 0, slow: 1,
 
+    reduced: false,
+
     configure(quality) {
       this.quality = quality;
       this.maxParticles = quality === 'low' ? 110 : quality === 'medium' ? 210 : 340;
@@ -146,8 +148,12 @@
       this.trails.push({ x, y, r, col, life: life || 12, maxLife: life || 12 });
     },
 
-    shake(amount) { this.shakeAmt = Math.min(26, this.shakeAmt + amount); },
+    shake(amount) {
+      if (this.reduced) return;
+      this.shakeAmt = Math.min(26, this.shakeAmt + amount);
+    },
     flash(color, amount) {
+      if (this.reduced) return;
       this.flashCol = color || '#ffffff';
       this.flashAmt = Math.max(this.flashAmt, amount == null ? 0.5 : amount);
     },
