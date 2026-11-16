@@ -24,6 +24,7 @@
       <div class="tagline">TINY FRUITS. BIG GRUDGES. ONE PRODUCE AISLE.</div>
       <div class="titleChars" id="titleChars"></div>
       <div class="menu">
+        <button class="big story" data-mode="story">STORY CAMPAIGN<small>The Great Produce War · 8 chapters · 24 fights</small></button>
         <button class="big primary" data-mode="cpu">1 PLAYER<small>Fight the CPU across four difficulties</small></button>
         <button class="big" data-mode="2p">2 PLAYERS<small>Local versus on one device</small></button>
         <button class="big bossBtn" data-mode="boss">BOSS FIGHT<small>Challenge King Tomato</small></button>
@@ -34,7 +35,7 @@
         <button class="small" id="toHow">HOW TO PLAY</button>
         <button class="small" id="toSettings">SETTINGS</button>
       </div>
-      <div class="micro">v1.1 · 9 fighters · 3 arenas · wave survival · built for touch</div>
+      <div class="micro">v1.2 · 9 fighters · 3 arenas · story campaign · wave survival</div>
     </div>
   </section>
 
@@ -90,6 +91,61 @@
       <button class="big primary fightBtn" id="toBattle">TO BATTLE!</button>
       <div class="hint" id="stageHint">Best of three · 60 second rounds</div>
     </footer>
+  </section>
+
+  <!-- ================= STORY MAP ================= -->
+  <section id="screen-storymap" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">STORY CAMPAIGN · THE GREAT PRODUCE WAR</div>
+      <h2>THE GREAT PRODUCE WAR</h2>
+      <p class="lede">The Rotten Core has taken the Produce Kingdom. Fight through eight chapters, free every aisle, and take the crown back from King Tomato.</p>
+      <div class="worldGrid" id="worldGrid"></div>
+      <div class="rowEnd">
+        <button class="ghost" id="storyBack">MAIN MENU</button>
+        <span class="hint" id="storyProgress"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STORY WORLD ================= -->
+  <section id="screen-storyworld" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow" id="swChapter">CHAPTER 1</div>
+      <h2 id="swName">PRODUCE MARKET</h2>
+      <p class="lede" id="swSub">NIGHT MARKET</p>
+      <div class="battleList" id="battleList"></div>
+      <div class="rowEnd">
+        <button class="ghost" id="swBack">WORLD MAP</button>
+        <span class="hint" id="swHint"></span>
+        <button class="small" id="swBrief">REPLAY BRIEFING</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STORY DIALOGUE ================= -->
+  <section id="screen-storytalk" class="screen">
+    <div class="panel wide talkPanel">
+      <div class="talkPortrait"><canvas id="talkPortrait" width="220" height="220"></canvas></div>
+      <div class="talkBody">
+        <div class="talkName" id="talkName">LEMON</div>
+        <p class="talkText" id="talkText"></p>
+        <button class="big primary" id="talkNext">CONTINUE</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STORY ENDING ================= -->
+  <section id="screen-storyend" class="screen">
+    <div class="panel wide endPanel">
+      <div class="eyebrow">CHAPTER 8 COMPLETE</div>
+      <h2>THE AISLE IS FREE</h2>
+      <p class="lede endText">The crown breaks. The Rotten Core goes quiet, and one by one the lanterns come back on across the market. Lemon does not take the throne. Instead the fighters of the Produce Kingdom stand together in aisle seven, bruised, peeling, and finally home.</p>
+      <p class="quote endQuote">“Tiny fruits. Big grudges. One produce aisle.”</p>
+      <div class="menuRow">
+        <button class="big primary" id="seContinue">BACK TO WORLD MAP</button>
+        <button class="big ghost" id="seMenu">MAIN MENU</button>
+      </div>
+    </div>
   </section>
 
   <!-- ================= PRODUCE PANIC ================= -->
@@ -312,6 +368,7 @@
 <script src="js/arenas.js"></script>
 <script src="js/game.js"></script>
 <script src="js/survival.js"></script>
+<script src="js/story.js"></script>
 <script src="js/ui.js"></script>
 <script>
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));

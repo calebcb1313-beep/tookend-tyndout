@@ -268,6 +268,9 @@
 
       f.specialCd = Math.max(0, f.specialCd - 1);
       f.dashCd = Math.max(0, f.dashCd - 1);
+      f.tapHold = Math.max(0, (f.tapHold || 0) - 1);
+      const heldLight = TT.Input && TT.Input.isHeld ? TT.Input.isHeld(f.side, 'light') : false;
+      const heldSpecial = TT.Input && TT.Input.isHeld ? TT.Input.isHeld(f.side, 'special') : false;
       f.invuln = Math.max(0, f.invuln - 1);
       f.hurtFlash = Math.max(0, f.hurtFlash - 0.08);
       f.landT = Math.max(0, f.landT - 1);
@@ -284,8 +287,8 @@
 
       if (!f.airborne) {
         if (input.super && f.meter >= T.METER_MAX) { this.startSuper(f, opp); return; }
-        if (input.special && !f.crouching && f.specialCd <= 0) { this.startSpecial(f, opp); return; }
-        if (input.light) { this.startLight(f); return; }
+        if ((input.special || heldSpecial) && !f.crouching && f.specialCd <= 0) { this.startSpecial(f, opp); return; }
+        if (input.light || (heldLight && f.tapHold <= 0)) { if (heldLight) f.tapHold = 3; this.startLight(f); return; }
         if (input.heavy) { this.startHeavy(f); return; }
         if (input.up && f.jumpCount === 0) {
           f.vy = -f.char.jump; f.airborne = true; f.jumpCount = 1;

@@ -93,6 +93,8 @@
         }
       });
       if (side === 'p1') ACTS.forEach(a => { if (touch.p1[a]) cur[a] = true; });
+      const heldMap = this._held || (this._held = { p1: {}, p2: {} });
+      heldMap[side] = cur;
       const out = {};
       ACTS.forEach(a => {
         out[a] = (cur[a] && !this.prev[side][a]) || buffer[side][a] > 0;
@@ -110,7 +112,12 @@
       // human attacks are edge-triggered so holding a button does not spam
       return out;
     },
+    isHeld(side, act) {
+      const h = this._held && this._held[side];
+      return !!(h && h[act]);
+    },
     reset() {
+      this._held = { p1: {}, p2: {} };
       this.prev = { p1: {}, p2: {} };
       ACTS.forEach(a => { touch.p1[a] = false; touch.p2[a] = false; });
       keys.clear();
@@ -219,6 +226,10 @@
     } else if (name !== 'fight' && name !== 'results') {
       TT.Audio.stopMusic();
     }
+    if (name === 'results' && TT.Story && TT.Story.active) {
+      TT.Story.onMatchEnd(G.lastResult);
+      return;
+    }
     if (name === 'results') renderResults();
     if (name === 'settings') syncSettingsUI();
   }
@@ -272,6 +283,121 @@
     });
     TT.sfx('ui');
     showScreen('difficulty');
+  }
+
+  /* ------------------------------------------------------------ */
+  /* Story campaign                                               */
+  /* ------------------------------------------------------------ */
+  let talkQueue = [], talkDone = null;
+
+  function openStoryMap() {
+    const grid = $('#worldGrid');
+    grid.innerHTML = '';
+    TT.Story.worlds.forEach((w, i) => {
+      const unlocked = TT.Story.isUnlocked(i);
+      const cleared = TT.Story.clearedCount(w);
+      const card = document.createElement('button');
+      card.className = 'worldCard' + (unlocked ? '' : ' locked') + (cleared >= w.battles.length ? ' cleared' : '');
+      let pips = '';
+      for (let k = 0; k < w.battles.length; k++) pips += '<i class="' + (k < cleared ? 'on' : '') + '"></i>';
+      card.innerHTML = '<span class="chap">' + w.chapter + '</span><b>' + w.name + '</b><span>' + w.sub + '</span>' +
+        '<span class="pips">' + pips + '</span>';
+      card.onclick = () => {
+        if (!unlocked) { TT.sfx('cancel'); return; }
+        TT.sfx('select');
+        if (!TT.Story.clearedCount(w) && !w._seen) { w._seen = true; TT.Story.enterWorld(i); }
+        else openStoryWorld(i);
+      };
+      grid.appendChild(card);
+    });
+    const label = $('#storyProgress');
+    if (label) label.textContent = TT.Story.totalCleared() + ' / ' + TT.Story.totalBattles() + ' fights cleared';
+    showScreen('storymap');
+    TT.sfx('ui');
+  }
+
+  function openStoryWorld(i) {
+    const w = TT.Story.worlds[i];
+    $('#swChapter').textContent = w.chapter;
+    $('#swName').textContent = w.name;
+    $('#swSub').textContent = w.sub;
+    const list = $('#battleList');
+    list.innerHTML = '';
+    w.battles.forEach((b, j) => {
+      const unlocked = TT.Story.battleUnlocked(i, j);
+      const done = j < TT.Story.clearedCount(w);
+      const row = document.createElement('button');
+      row.className = 'battleRow' + (unlocked ? '' : ' locked') + (done ? ' done' : '') + (b.boss ? ' bossRow' : '');
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      c.getContext('2d').drawImage(TT.Art.portrait(b.id, 0), 0, 0, 64, 64);
+      row.appendChild(c);
+      const mid = document.createElement('div');
+      mid.innerHTML = '<div class="bname">' + b.name + '</div><div class="bmeta">' +
+        TT.DIFFICULTY[b.diff].name + (b.boss ? ' · BOSS' : ' · STORY FIGHT') + '</div>';
+      row.appendChild(mid);
+      const tag = document.createElement('span');
+      tag.className = 'btag';
+      tag.textContent = done ? 'CLEARED' : unlocked ? 'FIGHT' : 'LOCKED';
+      row.appendChild(tag);
+      row.onclick = () => {
+        if (!unlocked) { TT.sfx('cancel'); return; }
+        TT.sfx('select');
+        TT.Story.beginBattle(i, j);
+      };
+      list.appendChild(row);
+    });
+    $('#swHint').textContent = TT.Story.clearedCount(w) + ' / ' + w.battles.length + ' cleared';
+    showScreen('storyworld');
+  }
+
+  function startStoryBattle(w, b) {
+    TT.Audio.unlock();
+    state.mode = 'story';
+    state.arenaIndex = w.arena;
+    G.mode = b.boss ? 'boss' : 'cpu';
+    G.startMatch({
+      mode: G.mode,
+      difficulty: b.diff,
+      arena: TT.ARENAS[w.arena],
+      p1: { id: 'lemon', skin: 0 },
+      p2: b.boss ? { id: 'king', skin: 0 } : { id: b.id, skin: 0 }
+    });
+  }
+
+  function renderTalk() {
+    const line = talkQueue[0];
+    if (!line) return;
+    const char = TT.getChar(line.who);
+    $('#talkName').textContent = char.name;
+    $('#talkText').textContent = line.text;
+    const pc = $('#talkPortrait');
+    const g = pc.getContext('2d');
+    g.clearRect(0, 0, pc.width, pc.height);
+    g.drawImage(TT.Art.portrait(line.who, 0), 0, 0, pc.width, pc.height);
+  }
+
+  function showStoryTalk(lines, done) {
+    talkQueue = lines.slice();
+    talkDone = done;
+    renderTalk();
+    TT.Audio.unlock();
+    showScreen('storytalk');
+  }
+
+  function advanceTalk() {
+    if (!talkQueue.length) return;
+    TT.sfx('ui');
+    talkQueue.shift();
+    if (talkQueue.length) { renderTalk(); return; }
+    const next = talkDone;
+    talkDone = null;
+    if (next) next();
+  }
+
+  function showStoryEnding() {
+    TT.sfx('win');
+    showScreen('storyend');
   }
 
   /* ------------------------------------------------------------ */
@@ -646,7 +772,8 @@
         TT.Audio.unlock(); TT.sfx('select');
         const mode = b.dataset.mode;
         state.mode = mode;
-        if (mode === 'survival') { state.difficulty = 'normal'; openSurvival(); }
+        if (mode === 'story') { TT.Story.start(); }
+        else if (mode === 'survival') { state.difficulty = 'normal'; openSurvival(); }
         else if (mode === 'cpu' || mode === 'boss') openDifficulty(mode);
         else { state.difficulty = 'normal'; openSelect(); }
       };
@@ -672,6 +799,12 @@
     $('#btnChange').onclick = () => { TT.sfx('ui'); openSelect(); };
     $('#btnResultsMenu').onclick = () => { G.quitToTitle(); TT.sfx('cancel'); showScreen('title'); };
     $('#survBack').onclick = () => { showScreen('title'); TT.sfx('cancel'); };
+    $('#storyBack').onclick = () => { TT.Story.active = false; G.quitToTitle(); showScreen('title'); TT.sfx('cancel'); };
+    $('#swBack').onclick = () => { openStoryMap(); TT.sfx('cancel'); };
+    $('#swBrief').onclick = () => { TT.sfx('ui'); TT.Story.enterWorld(TT.Story.world); };
+    $('#talkNext').onclick = advanceTalk;
+    $('#seContinue').onclick = () => { TT.sfx('ui'); openStoryMap(); };
+    $('#seMenu').onclick = () => { TT.Story.active = false; G.quitToTitle(); showScreen('title'); TT.sfx('cancel'); };
     $('#poRetry').onclick = () => {
       TT.sfx('select');
       G.mode = 'survival';
@@ -768,6 +901,10 @@
       case 'difficulty': showScreen('title'); return true;
       case 'results': G.quitToTitle(); showScreen('title'); return true;
       case 'survival': showScreen('title'); return true;
+      case 'storymap': TT.Story.active = false; G.quitToTitle(); showScreen('title'); return true;
+      case 'storyworld': openStoryMap(); return true;
+      case 'storytalk': advanceTalk(); return true;
+      case 'storyend': openStoryMap(); return true;
       case 'upgrade': return true;
       case 'panicover': G.quitToTitle(); showScreen('title'); return true;
       default: return false;
@@ -778,7 +915,8 @@
     state,
     get settings() { return settings; },
     applySettings, showScreen, openSelect, openDifficulty, startFight, togglePause, renderResults, back,
-    openSurvival, startSurvival, showUpgrades, showSurvivalEnd
+    openSurvival, startSurvival, showUpgrades, showSurvivalEnd,
+    openStoryMap, openStoryWorld, showStoryTalk, startStoryBattle, showStoryEnding
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

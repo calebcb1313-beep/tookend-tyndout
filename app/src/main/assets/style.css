@@ -369,3 +369,54 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 }
 
 .upGrid{grid-auto-rows:min-content}
+
+/* ---------- story campaign ---------- */
+.big.story{background:linear-gradient(180deg,#8f2230,#5c1222 55%,#380a15);border-color:#ff8b6a}
+.big.story small{color:rgba(255,214,196,.7)}
+.worldGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0 4px}
+.worldCard{position:relative;text-align:left;padding:14px 13px;border-radius:14px;min-height:122px;
+  border:2px solid rgba(255,212,92,.28);background:linear-gradient(165deg,#3d2349,#201230);
+  box-shadow:0 4px 0 #150c1e;transition:transform .08s,border-color .2s,filter .15s;display:flex;flex-direction:column;gap:3px}
+.worldCard:hover{transform:translateY(-2px);border-color:var(--gold)}
+.worldCard:active{transform:translateY(2px);box-shadow:0 1px 0 #150c1e}
+.worldCard .chap{font-size:9px;letter-spacing:.18em;font-weight:900;color:#c6a86a}
+.worldCard b{font-size:clamp(12px,1.15vw,15px);letter-spacing:.05em;color:#fff1cc;line-height:1.2}
+.worldCard span{font-size:9.5px;letter-spacing:.06em;color:#bfaed0;font-weight:600}
+.worldCard .pips{margin-top:auto;display:flex;gap:3px}
+.worldCard .pips i{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.14)}
+.worldCard .pips i.on{background:linear-gradient(90deg,var(--gold),var(--gold2));box-shadow:0 0 6px rgba(255,190,80,.5)}
+.worldCard.locked{filter:grayscale(.75) brightness(.62);cursor:not-allowed}
+.worldCard.locked::after{content:"LOCKED";position:absolute;right:10px;top:10px;font-size:8px;letter-spacing:.16em;font-weight:900;color:#d9c7ea}
+.worldCard.cleared{border-color:rgba(143,224,106,.55)}
+.worldCard.cleared::before{content:"CLEARED";position:absolute;right:10px;top:10px;font-size:8px;letter-spacing:.16em;font-weight:900;color:#8fe06a}
+.battleList{display:grid;gap:9px;margin:10px 0 4px}
+.battleRow{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:12px;text-align:left;
+  padding:10px 14px;border-radius:14px;border:2px solid rgba(255,212,92,.26);
+  background:linear-gradient(160deg,#42274f,#241431);box-shadow:0 4px 0 #150c1e;transition:transform .08s,border-color .2s}
+.battleRow:hover{transform:translateY(-2px);border-color:var(--gold)}
+.battleRow:active{transform:translateY(2px);box-shadow:0 1px 0 #150c1e}
+.battleRow canvas{width:64px;height:64px;border-radius:12px;background:rgba(10,6,16,.5)}
+.battleRow .bname{font-size:clamp(13px,1.35vw,17px);font-weight:900;letter-spacing:.05em;color:#fff1cc}
+.battleRow .bmeta{font-size:10px;letter-spacing:.12em;color:#bfaed0;font-weight:700;margin-top:3px}
+.battleRow .btag{font-size:9px;font-weight:900;letter-spacing:.14em;padding:6px 10px;border-radius:20px;
+  border:1px solid rgba(255,212,92,.4);color:#ffe9a8;background:rgba(255,212,92,.08)}
+.battleRow.done .btag{color:#8fe06a;border-color:rgba(143,224,106,.5);background:rgba(143,224,106,.1)}
+.battleRow.locked{filter:grayscale(.7) brightness(.66);cursor:not-allowed}
+.battleRow.bossRow{border-color:rgba(255,100,90,.55);background:linear-gradient(160deg,#5a1f2c,#2a0f18)}
+.talkPanel{display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:center}
+.talkPortrait{width:220px;aspect-ratio:1;border-radius:18px;overflow:hidden;border:2px solid rgba(255,212,92,.3);
+  background:radial-gradient(circle at 50% 40%,rgba(255,180,110,.22),rgba(12,7,20,.9))}
+.talkPortrait canvas{width:100%;height:auto;display:block}
+.talkName{font-size:clamp(16px,1.9vw,24px);font-weight:900;letter-spacing:.1em;color:#ffe9a8;margin-bottom:8px}
+.talkText{font-size:clamp(13px,1.5vw,18px);line-height:1.55;color:#f2e6d2;font-weight:600;margin:0 0 18px;min-height:3.2em}
+.talkBody{display:flex;flex-direction:column;align-items:flex-start}
+.talkBody .big{max-width:260px}
+.endPanel{text-align:left}
+.endText{font-size:clamp(12px,1.3vw,15px)}
+.endQuote{font-size:clamp(13px,1.5vw,18px);color:#ffe9a8;margin:10px 0 18px}
+@media (max-width:900px){
+  .worldGrid{grid-template-columns:repeat(2,1fr)}
+  .talkPanel{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .talkPortrait{width:140px}
+  .talkBody{align-items:center}
+}

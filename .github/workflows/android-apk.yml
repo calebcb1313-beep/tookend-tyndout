@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v1.1.0
-  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.1.0.apk
+  RELEASE_TAG: v1.2.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.2.0.apk
 
 jobs:
   build:
@@ -76,7 +76,13 @@ jobs:
           body: |
             TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 1.1.0 (versionCode 9) — installable release APK.
+            Android build 1.2.0 (versionCode 10) — installable release APK.
+
+            NEW IN 1.2.0 — THE GREAT PRODUCE WAR, an eight-chapter story campaign:
+            24 authored encounters across the market, farm, pantry, rooftop, kitchen,
+            freezer, factory and the Rotten Core, with dialogue scenes, locked chapter
+            progression, saved progress and a final King Tomato boss ending. Holding
+            the light button now chains attacks instead of requiring repeated taps.
 
             NEW IN 1.1.0 — PRODUCE PANIC, a wave-survival mode: auto-firing
             fighters, five enemy archetypes with elites, upgrade picks after every

@@ -1,7 +1,7 @@
 // Offline shell for the hosted PWA. The Android app loads the same assets from
 // file:///android_asset, where service workers are not used.
 // Bump CACHE whenever index.html, style.css or any js file changes.
-const CACHE = 'tookend-tyndout-v8';
+const CACHE = 'tookend-tyndout-v10';
 const SHELL = [
   './', './index.html', './style.css',
   './js/data.js', './js/audio.js', './js/fx.js', './js/art.js',

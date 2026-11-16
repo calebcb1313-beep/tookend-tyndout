@@ -132,6 +132,8 @@
       this.bossSpawned = false; this.bossAlive = false; this.waveClearT = 0;
       this.waveWin = false;
       this.player = this.makePlayer();
+      this._shotGlow = makeGlow(this.player.colors.light || '#ffe14d');
+      this._gemGlow = makeGlow('#ffe9a8');
       this.quality = G.quality;
       this.canvas = document.getElementById('game');
       this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
@@ -796,12 +798,8 @@
         const s = this.shots[i];
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 2.6);
-        g.addColorStop(0, '#ffffff');
-        g.addColorStop(0.35, s.color || '#ffe14d');
-        g.addColorStop(1, 'rgba(255,225,77,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 2.6, 0, TAU); ctx.fill();
+        const gw = s.r * 5.2;
+        if (this._shotGlow) ctx.drawImage(this._shotGlow, s.x - gw / 2, s.y - gw / 2, gw, gw);
         ctx.fillStyle = '#fffbe6';
         ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 0.55, 0, TAU); ctx.fill();
         ctx.restore();
@@ -826,11 +824,7 @@
         ctx.translate(g.x, g.y + bob);
         ctx.rotate(t * 0.03);
         ctx.globalCompositeOperation = 'lighter';
-        const rg = ctx.createRadialGradient(0, 0, 0, 0, 0, 18);
-        rg.addColorStop(0, 'rgba(255,255,220,.9)');
-        rg.addColorStop(1, 'rgba(255,220,120,0)');
-        ctx.fillStyle = rg;
-        ctx.beginPath(); ctx.arc(0, 0, 18, 0, TAU); ctx.fill();
+        if (this._gemGlow) ctx.drawImage(this._gemGlow, -18, -18, 36, 36);
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = '#ffe9a8'; ctx.strokeStyle = INK; ctx.lineWidth = 2;
         ctx.beginPath();
@@ -874,10 +868,7 @@
       ctx.fillStyle = 'rgba(255,255,255,.1)';
       roundRect(ctx, bx, by, bw, bh, 6); ctx.fill();
       const hpFrac = clamp(p.hp / p.maxHp, 0, 1);
-      const hpGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
-      hpGrad.addColorStop(0, hpFrac > 0.35 ? '#b6f07a' : '#ff9a72');
-      hpGrad.addColorStop(1, hpFrac > 0.35 ? '#4fae43' : '#c9382c');
-      ctx.fillStyle = hpGrad;
+      ctx.fillStyle = hpFrac > 0.35 ? '#6dc94f' : '#e0503f';
       roundRect(ctx, bx, by, Math.max(0, bw * hpFrac), bh, 6); ctx.fill();
       ctx.strokeStyle = 'rgba(20,12,26,.9)'; ctx.lineWidth = 2;
       roundRect(ctx, bx, by, bw, bh, 6); ctx.stroke();
@@ -955,9 +946,7 @@
       roundRect(ctx, pad, my - 9, 210, 20, 8); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.12)';
       roundRect(ctx, pad + 5, my - 4, 200, 10, 5); ctx.fill();
-      const mg = ctx.createLinearGradient(pad, my, pad + 200, my);
-      mg.addColorStop(0, p.colors.accent); mg.addColorStop(1, '#fff2b0');
-      ctx.fillStyle = mg;
+      ctx.fillStyle = p.colors.accent || '#ffd45c';
       roundRect(ctx, pad + 5, my - 4, 200 * clamp(p.meter / 100, 0, 1), 10, 5); ctx.fill();
       ctx.fillStyle = 'rgba(255,244,216,.85)';
       ctx.font = '900 9px "Trebuchet MS", sans-serif';
@@ -1005,6 +994,22 @@
   /* ---------------------------------------------------------------- */
   /* Enemy art                                                         */
   /* ---------------------------------------------------------------- */
+  const glowCache = {};
+  function makeGlow(color) {
+    if (glowCache[color]) return glowCache[color];
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d');
+    const rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, '#ffffff');
+    rg.addColorStop(0.3, color);
+    rg.addColorStop(1, 'rgba(255,225,120,0)');
+    g.fillStyle = rg;
+    g.fillRect(0, 0, 64, 64);
+    glowCache[color] = c;
+    return c;
+  }
+
   function roundRect(ctx, x, y, w, h, r) {
     r = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
