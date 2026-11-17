@@ -244,7 +244,9 @@
         return;
       }
       const cleared = this.progress.cleared;
+      const firstClear = this.battle + 1 > (cleared[w.id] || 0);
       cleared[w.id] = Math.max(cleared[w.id] || 0, this.battle + 1);
+      if (firstClear && TT.Meta) TT.Meta.addCred(50);
       const finishedWorld = cleared[w.id] >= w.battles.length;
       if (finishedWorld && this.world + 1 >= this.progress.unlocked) {
         this.progress.unlocked = Math.min(WORLDS.length, this.world + 2);

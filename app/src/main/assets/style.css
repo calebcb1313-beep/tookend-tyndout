@@ -457,3 +457,29 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 /* ---------- story branch choices ---------- */
 .talkChoices { display: none; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
 .talkChoices.show { display: flex; }
+
+/* ---------- meta progression ---------- */
+.rewardLine { margin-top: 10px; font-size: 11px; letter-spacing: 0.12em; color: #ffd45c; }
+.progHead { display: flex; gap: 14px; align-items: center; margin: 8px 0; }
+.progLevel, .progCred {
+  display: flex; flex-direction: column; gap: 2px; padding: 8px 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+}
+.progLevel span, .progCred span { font-size: 9px; letter-spacing: 0.18em; opacity: 0.65; }
+.progLevel b, .progCred b { font-size: 22px; color: #ffd45c; }
+.progXpWrap { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.progBar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.progBar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd45c, #ff8a5a); transition: width 0.25s; }
+.progXpWrap span { font-size: 10px; letter-spacing: 0.1em; opacity: 0.7; }
+.progGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.progCard {
+  display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px;
+  background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09);
+}
+.progCard.maxed { border-color: rgba(255,212,92,0.45); background: rgba(255,212,92,0.08); }
+.progCard b { display: block; font-size: 12px; letter-spacing: 0.12em; }
+.progCard span { display: block; margin-top: 3px; font-size: 11px; opacity: 0.75; }
+.progPips { display: flex; gap: 4px; margin-top: 6px; }
+.progPips i { width: 16px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.16); }
+.progPips i.on { background: #ffd45c; }
+.progLock { font-size: 9px; letter-spacing: 0.14em; color: #ff9a7a; }

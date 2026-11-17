@@ -19,7 +19,9 @@
     { id: 'wave20', name: 'AISLE LEGEND', desc: 'Reach wave 20 in Produce Panic.', target: 20, stat: 'waveBest' },
     { id: 'roster', name: 'FULL ROSTER', desc: 'Win a match with all nine fighters.', target: 9, stat: 'roster' },
     { id: 'century', name: 'GRUDGE COLLECTOR', desc: 'Land 500 hits across all modes.', target: 500, stat: 'hits' },
-    { id: 'both_endings', name: 'TWO CROWNS', desc: 'Reach both story endings.', target: 2, stat: 'endings' }
+    { id: 'both_endings', name: 'TWO CROWNS', desc: 'Reach both story endings.', target: 2, stat: 'endings' },
+    { id: 'first_upgrade', name: 'SPENDING THE WAR CHEST', desc: 'Buy your first permanent upgrade.', target: 1 },
+    { id: 'level_five', name: 'AISLE REGULAR', desc: 'Reach account level 5.', target: 5, stat: 'level' }
   ];
 
   const data = (function () {

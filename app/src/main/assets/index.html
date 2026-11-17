@@ -35,8 +35,9 @@
         <button class="small" id="toHow">HOW TO PLAY</button>
         <button class="small" id="toSettings">SETTINGS</button>
         <button class="small" id="toAchievements">TROPHIES</button>
+        <button class="small" id="toProgression">PROGRESSION</button>
       </div>
-      <div class="micro">v1.4 · 9 fighters · 3 arenas · story campaign · wave survival · trophies</div>
+      <div class="micro">v1.5 · 9 fighters · 3 arenas · story campaign · wave survival · trophies · upgrades</div>
     </div>
   </section>
 
@@ -237,6 +238,25 @@
     </div>
   </section>
 
+  <!-- ================= PROGRESSION ================= -->
+  <section id="screen-progression" class="screen">
+    <div class="panel wide">
+      <div class="eyebrow">THE LONG AISLE</div>
+      <h2>PROGRESSION</h2>
+      <div class="progHead">
+        <div class="progLevel"><span>LEVEL</span><b id="progLevel">1</b></div>
+        <div class="progXpWrap"><div class="progBar"><i id="progXpBar"></i></div><span id="progXp">0 / 90 XP</span></div>
+        <div class="progCred"><span>PRODUCE CRED</span><b id="progCred">0</b></div>
+      </div>
+      <p class="lede small">Every fight pays Produce Cred and XP. Spend Cred on permanent upgrades for arena fights — story, versus, boss and training. Produce Panic keeps its own in-run upgrades.</p>
+      <div class="progGrid" id="progUpgrades"></div>
+      <div class="rowEnd">
+        <button class="ghost" id="progBack">MAIN MENU</button>
+        <span class="hint" id="progHint"></span>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= HOW TO PLAY ================= -->
   <section id="screen-how" class="screen">
     <div class="panel wide">
@@ -339,6 +359,7 @@
           <div class="winnerTitle" id="winnerTitle">THE ZESTY STRIKER</div>
           <p class="quote" id="winnerQuote"></p>
           <div class="statTable" id="resultStats"></div>
+          <div class="rewardLine" id="resultReward"></div>
         </div>
       </div>
       <div class="menuRow">
@@ -377,6 +398,7 @@
 </div>
 
 <script src="js/save.js"></script>
+<script src="js/meta.js"></script>
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/fx.js"></script>

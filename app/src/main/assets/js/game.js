@@ -108,6 +108,7 @@
       const p2 = this.makeFighter('p2', this.p2, this.arena.width * 0.66, -1);
       p1.meter = this._carryMeter[0] || 0; p2.meter = this._carryMeter[1] || 0;
       if (this.mode === 'training') { p2.hp = p2.maxHp = 4000; }
+      if (TT.Meta) { TT.Meta.applyTo(p1); p1.meter = Math.max(p1.meter, TT.Meta.startMeter()); }
       this.fighters = [p1, p2];
       this.projectiles = []; this.peels = []; this.queue = [];
       this.cam.x = clamp((p1.x + p2.x) / 2 - W / 2, 0, this.arena.width - W);
@@ -542,7 +543,8 @@
         return;
       }
 
-      const dmg = Math.max(1, mv.dmg * scaleDown * power * T.DAMAGE);
+      const metaDmg = attacker.side === 'p1' && TT.Meta ? TT.Meta.dmgMul() : 1;
+      const dmg = Math.max(1, mv.dmg * scaleDown * power * T.DAMAGE * metaDmg);
       defender.hp = Math.max(0, defender.hp - dmg);
       attacker.combo++;
       attacker.comboT = T.COMBO_WINDOW;
@@ -673,6 +675,10 @@
         if (this.mode === 'boss') TT.Ach.unlock('boss_win');
         if (TT.Ach.counters.roster.length >= 9) TT.Ach.unlock('roster');
       }
+      this.lastReward = TT.Meta ? TT.Meta.grant({
+        win: p1win, rounds: this.wins[0], mode: this.mode,
+        difficulty: this.difficulty, boss: this.mode === 'boss'
+      }) : null;
       TT.Audio.stopMusic();
       TT.Audio.sfx(p1win ? 'win' : 'lose');
       this.showScreen('results');

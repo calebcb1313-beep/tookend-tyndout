@@ -198,6 +198,10 @@
     nextWave() {
       this.wave++;
       if (TT.Ach) TT.Ach.best('waveBest', this.wave);
+      if (TT.Meta) {
+        TT.Meta.addCred(3 + (this.wave % 5 === 0 ? 10 : 0));
+        TT.Meta.addXp(5);
+      }
       this.pendingPicks = 0;
       this.picks = [];
       this.beginWave(false);

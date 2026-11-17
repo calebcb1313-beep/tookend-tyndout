@@ -240,6 +240,7 @@
     if (name === 'results') renderResults();
     if (name === 'settings') syncSettingsUI();
     if (name === 'achievements' && TT.Ach) TT.Ach.renderScreen();
+    if (name === 'progression') renderProgression();
   }
   G.showScreen = showScreen;
 
@@ -462,6 +463,53 @@
     $('#seQuote').textContent = e.quote;
     TT.sfx('win');
     showScreen('storyend');
+  }
+
+  /* ------------------------------------------------------------ */
+  /* Progression (meta loop)                                      */
+  /* ------------------------------------------------------------ */
+  function renderProgression() {
+    const M = TT.Meta;
+    if (!M) return;
+    $('#progLevel').textContent = M.level;
+    $('#progCred').textContent = M.cred;
+    const need = M.xpNeed(M.level);
+    $('#progXp').textContent = M.xp + ' / ' + need + ' XP';
+    $('#progXpBar').style.width = Math.min(100, (M.xp / need) * 100).toFixed(1) + '%';
+    const host = $('#progUpgrades');
+    host.innerHTML = '';
+    M.UPGRADES.forEach(up => {
+      const rank = M.rankOf(up.id);
+      const maxed = rank >= up.max;
+      const check = M.canBuy(up.id);
+      const card = document.createElement('div');
+      card.className = 'progCard' + (maxed ? ' maxed' : '');
+      let pips = '';
+      for (let i = 0; i < up.max; i++) pips += '<i class="' + (i < rank ? 'on' : '') + '"></i>';
+      const body = document.createElement('div');
+      body.innerHTML = '<b>' + up.name + '</b><span>' + up.desc + '</span>' +
+        '<div class="progPips">' + pips + '</div>';
+      card.appendChild(body);
+      const btn = document.createElement('button');
+      btn.className = 'small';
+      btn.textContent = maxed ? 'MAXED' : 'BUY ' + M.cost(up.id);
+      btn.disabled = !check.ok;
+      if (!check.ok && !maxed) btn.title = check.reason;
+      btn.onclick = () => {
+        const res = M.buy(up.id);
+        if (res.ok) { TT.sfx('select'); renderProgression(); } else TT.sfx('cancel');
+      };
+      card.appendChild(btn);
+      if (!maxed && M.level < M.levelGate(rank)) {
+        const lock = document.createElement('small');
+        lock.className = 'progLock';
+        lock.textContent = 'LEVEL ' + M.levelGate(rank);
+        card.appendChild(lock);
+      }
+      host.appendChild(card);
+    });
+    const hint = $('#progHint');
+    if (hint) hint.textContent = 'Ranks bought: ' + M.data.bought + '  ·  ' + (M.credMul() * 100 - 100).toFixed(0) + '% cred bonus';
   }
 
   /* ------------------------------------------------------------ */
@@ -741,6 +789,13 @@
     const g = pc.getContext('2d');
     g.clearRect(0, 0, pc.width, pc.height);
     g.drawImage(TT.Art.portrait(wchar.id, wdata.skin || 0), 0, 0, pc.width, pc.height);
+    const rw = $('#resultReward');
+    if (rw) {
+      const lr = G.lastReward;
+      rw.textContent = (lr && (lr.cred || lr.xp))
+        ? 'PRODUCE CRED +' + lr.cred + '   ·   XP +' + lr.xp + (lr.levels ? '   ·   LEVEL UP' : '')
+        : '';
+    }
     const s1 = r.stats.p1, s2 = r.stats.p2;
     const c1 = TT.getChar(r.chars[0].id).name, c2 = TT.getChar(r.chars[1].id).name;
     $('#resultStats').innerHTML =
@@ -845,6 +900,8 @@
     $('#toHow').onclick = () => { state.returnTo = 'title'; showScreen('how'); TT.sfx('ui'); };
     $('#toSettings').onclick = () => { state.returnTo = 'title'; showScreen('settings'); TT.sfx('ui'); };
     $('#toAchievements').onclick = () => { state.returnTo = 'title'; TT.sfx('ui'); showScreen('achievements'); };
+    $('#toProgression').onclick = () => { state.returnTo = 'title'; TT.sfx('ui'); showScreen('progression'); };
+    $('#progBack').onclick = () => { showScreen('title'); TT.sfx('cancel'); };
     $('#achBack').onclick = () => { showScreen('title'); TT.sfx('cancel'); };
     $('#howBack').onclick = () => { showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); TT.sfx('cancel'); };
     $('#settingsBack').onclick = () => { showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); TT.sfx('cancel'); };
@@ -965,7 +1022,7 @@
       case 'pause': resumeGame(); return true;
       case 'select': if (state.step > 0) { state.step--; renderSelect(); TT.sfx('cancel'); } else { showScreen(state.mode === 'cpu' || state.mode === 'boss' ? 'difficulty' : 'title'); } return true;
       case 'stage': openSelect(); return true;
-      case 'settings': case 'how': case 'achievements': showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); return true;
+      case 'settings': case 'how': case 'achievements': case 'progression': showScreen(state.returnTo === 'pause' ? 'pause' : 'title'); return true;
       case 'difficulty': showScreen('title'); return true;
       case 'results': G.quitToTitle(); showScreen('title'); return true;
       case 'survival': showScreen('title'); return true;

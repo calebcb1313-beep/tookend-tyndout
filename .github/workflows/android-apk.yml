@@ -9,9 +9,9 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v1.4.0
-  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.4.0.apk
-  AAB_NAME: Tookend-Tyndout-Produce-Brawl-1.4.0.aab
+  RELEASE_TAG: v1.5.0
+  APK_NAME: Tookend-Tyndout-Produce-Brawl-1.5.0.apk
+  AAB_NAME: Tookend-Tyndout-Produce-Brawl-1.5.0.aab
 
 jobs:
   build:
@@ -89,8 +89,17 @@ jobs:
           body: |
             TOOKEND TYNDOUT: PRODUCE BRAWL
 
-            Android build 1.4.0 (versionCode 12) — installable release APK plus an
+            Android build 1.5.0 (versionCode 13) — installable release APK plus an
             Android App Bundle for Play Console uploads.
+
+            NEW IN 1.5.0 — a real session-to-session progression loop. Fights now pay
+            Produce Cred and XP (wins and losses both pay, boss and first-clear bonuses
+            included), XP follows 90 x level^1.35, and Cred buys four capped permanent
+            upgrades with geometric costs and level gates: +8% max HP per rank, +5%
+            damage, +10 starting meter, +6% Cred earned. A new Progression screen shows
+            the XP bar, rank pips and buy states, and the results screen reports the
+            payout. Design rationale, economy tables and curves are documented in
+            docs/GDD.md.
 
             NEW IN 1.4.0 — the campaign now branches. Clearing the pantry asks what to
             do with the prisoners, and that answer comes back in chapter seven. Beating

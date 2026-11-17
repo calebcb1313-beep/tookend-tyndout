@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5.0 — versionCode 13
+
+- **Meta progression (game-mechanics-designer framework):** fights now pay Produce Cred and
+  XP. Account XP follows `90 × level^1.35`; Cred buys four capped permanent upgrades with
+  geometric costs `base × 1.55^rank`, gated by account level (ranks at levels 1/3/5/7/9).
+- **Upgrades:** Tough Rind (+8% max HP), Heavy Hand (+5% damage), Fast Flow (+10 starting
+  meter), Good Market (+6% Cred). Player-side only; the CPU never receives them.
+- **Progression screen:** level, XP bar, Cred balance, rank pips, buy buttons, lock reasons.
+- **Payouts:** wins/losses both pay (losses pay a consolation), boss wins pay extra, story
+  first-clears pay +50, Produce Panic pays per wave. Training pays nothing by design.
+- **Results screen** now shows the Cred/XP earned and level-ups.
+- **Trophies:** first upgrade and account level 5.
+- **Docs:** `docs/GDD.md` documents the core loop, MDA tables, Bartle audience, economy
+  sources/sinks, cost and XP tables, balance notes and deliberate exclusions.
+
 ## 1.4.0 — versionCode 12
 
 - **Branching campaign:** clearing The Underground Pantry asks whether to free the

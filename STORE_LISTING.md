@@ -8,13 +8,13 @@ either verified in this repository or explicitly marked as remaining.
 | Field | Value |
 |---|---|
 | Package name | `com.tookendtyndout.rootbound` |
-| Version name / code | 1.4.0 / 12 |
+| Version name / code | 1.5.0 / 12 |
 | Category | Games → Action (single player, offline) |
 | Price | Free, no ads, no in-app purchases |
 | Content rating | Everyone / PEGI 3 — cartoon slapstick combat, no blood, no language |
 | Target SDK | 35 (Android 15), min SDK per `app/build.gradle` |
 | Permissions | `android.permission.VIBRATE` only. No INTERNET permission. |
-| Artifacts | `Tookend-Tyndout-Produce-Brawl-1.4.0.aab` (upload), `…1.4.0.apk` (sideload/testing) |
+| Artifacts | `Tookend-Tyndout-Produce-Brawl-1.5.0.aab` (upload), `…1.5.0.apk` (sideload/testing) |
 
 ## Store text
 
@@ -57,7 +57,7 @@ Nine furious fruits. Story campaign, endless panic waves, local versus.
 |---|---|---|
 | App icon | 512×512 PNG | `app/src/main/assets/icon-512.png` (plus legacy/adaptive mipmaps) |
 | Feature graphic | 1024×500 | **Remaining** — not produced |
-| Phone screenshots | 2–8, 16:9 or 9:16, ≥320 px | `artifacts/story-map.png`, `story-world.png`, `story-choice.png`, `trophies.png`, `settings-1.3.png`, `panic-fight.png`, `panic-upgrade.png` |
+| Phone screenshots | 2–8, 16:9 or 9:16, ≥320 px | `artifacts/story-map.png`, `story-world.png`, `story-choice.png`, `trophies.png`, `progression.png`, `settings-1.3.png`, `panic-fight.png`, `panic-upgrade.png` |
 | Tablet screenshots | optional | **Remaining** |
 | Promo video | optional | Not produced |
 
